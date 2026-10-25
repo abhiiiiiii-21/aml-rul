@@ -1,9 +1,9 @@
-# AML Project — Aryan: Data loading and EDA
+# AML Project — Prateek: Data loading and EDA
 
 **Your part:** load the raw files, create the RUL label, explore the data, and find the flat columns to remove. Everyone else's code starts from your `load_train()`.
 
 - **Your files:** `src/load_data.py`, `notebooks/01_eda.ipynb`
-- **Branch:** `aryan/data-eda`
+- **Branch:** `prateek/data-eda`
 - **Start:** now. You are first. Akhil starts when your work is merged.
 
 ## The data in 4 lines
@@ -23,7 +23,7 @@ cd aml-rul-fd001
 python3 -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-git checkout -b aryan/data-eda
+git checkout -b prateek/data-eda
 ```
 
 ## Step 1 — `src/load_data.py`
@@ -106,7 +106,7 @@ Finally, run **Kernel → Restart & Run All**, so the outputs are saved in the n
 ```bash
 git add src/load_data.py notebooks/01_eda.ipynb
 git commit -m "Add data loading, RUL label and EDA"
-git push -u origin aryan/data-eda
+git push -u origin prateek/data-eda
 ```
 
 Open a pull request on GitHub. Touch only your two files.
