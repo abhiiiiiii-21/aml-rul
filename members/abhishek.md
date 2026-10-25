@@ -4,7 +4,7 @@
 
 - **Your files:** `notebooks/04_tree_models.ipynb` (plus the 2 prediction files it writes)
 - **Branch:** `srijan/tree-models`
-- **Start:** after Abhayanth's work is merged (you need `load_data.py`, `features.py`, `evaluation.py`). Run `git pull` on `main` first. Ashrith starts after your work is merged.
+- **Start:** after Kapish's work is merged (you need `load_data.py`, `features.py`, `evaluation.py`). Run `git pull` on `main` first. Ashrith starts after your work is merged.
 
 ## Why trees
 
