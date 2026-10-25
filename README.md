@@ -44,7 +44,7 @@ notebooks/
   02_features.ipynb           build and explain the features                Yogesh
   03_linear_models.ipynb      OLS and Elastic Net                           Kapish
   04_tree_models.ipynb        Random Forest and gradient boosting           Abhishek
-  05_final_evaluation.ipynb   all models on validation and test, early/late Ashrith
+  05_final_evaluation.ipynb   all models on validation and test, early/late Vikash Kumar
 results/                      predictions and final results (written by the notebooks)
 members/                      each member's instructions and check numbers
 ```
@@ -70,7 +70,7 @@ Run the notebooks in order: 01 → 02 → 03 → 04 → 05.
 | Abhishek | Tree models: Random Forest and gradient boosting | [members/abhishek.md](members/abhishek.md) |
 | Kapish | Engine split, validation points, metrics, linear models | [members/kapish.md](members/kapish.md) |
 | Yogesh | Rolling features | [members/yogesh.md](members/yogesh.md) |
-| Ashrith | Final evaluation: validation and test, early/late breakdown | [members/ashrith.md](members/ashrith.md) |
+| Vikash Kumar | Final evaluation: validation and test, early/late breakdown | [members/vikash.md](members/vikash.md) |
 
 Work order (each part needs the previous one merged): Prateek → Yogesh → Kapish → Abhishek → Ashrith.
 
