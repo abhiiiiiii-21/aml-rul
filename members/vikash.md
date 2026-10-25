@@ -1,9 +1,9 @@
-# AML Project — Ashrith: Final evaluation
+# AML Project — Vikash Kumar: Final evaluation
 
 **Your part:** score every model in one place, on validation **and** on the test set. Break the error into early and late points (the project brief asks for "error by early versus late degradation stage"), and show the gap that motivates Phase 2.
 
 - **Your files:** `notebooks/05_final_evaluation.ipynb` (plus `results/final_results.csv` and `results/the_gap.png`, which it writes)
-- **Branch:** `ashrith/final-evaluation`
+- **Branch:** `vikash/final-evaluation`
 - **Start:** after Kapish's and Abhishek's work is merged (you need their 4 prediction files in `results/`). Run `git pull` on `main` first. You can write the code earlier and run it once the files are there.
 
 ## Key ideas
@@ -24,7 +24,7 @@ cd aml-rul-fd001
 python3 -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-git checkout -b ashrith/final-evaluation
+git checkout -b vikash/final-evaluation
 ```
 
 ## `notebooks/05_final_evaluation.ipynb`
@@ -121,7 +121,7 @@ Phase 2 fix: an LSTM reads the raw sensor **sequence** and learns its own patter
 ```bash
 git add notebooks/05_final_evaluation.ipynb results/final_results.csv results/the_gap.png
 git commit -m "Add final evaluation: validation and test, early/late, the gap"
-git push -u origin ashrith/final-evaluation
+git push -u origin vikash/final-evaluation
 ```
 
 Open a pull request on GitHub. Touch only these files.
