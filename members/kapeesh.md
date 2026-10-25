@@ -4,7 +4,7 @@
 
 - **Your files:** `src/evaluation.py`, `notebooks/03_linear_models.ipynb`
 - **Branch:** `abhayanth/evaluation-linear`
-- **Start:** after Akhil's work is merged (you need `load_data.py` and `features.py`). Run `git pull` on `main` first. Srijan starts when your `evaluation.py` is merged.
+- **Start:** after Yogesh's work is merged (you need `load_data.py` and `features.py`). Run `git pull` on `main` first. Srijan starts when your `evaluation.py` is merged.
 
 ## Why it is set up this way
 

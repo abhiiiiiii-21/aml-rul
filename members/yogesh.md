@@ -1,9 +1,9 @@
-# AML Project — Akhil: Rolling features
+# AML Project — Yogesh: Rolling features
 
 **Your part:** turn raw sensor readings into features that describe the recent trend: for each sensor, the mean, standard deviation and slope over the last 10 cycles of the same engine. Every model uses your `FEATURES` list.
 
 - **Your files:** `src/features.py`, `notebooks/02_features.ipynb`
-- **Branch:** `akhil/features`
+- **Branch:** `yogesh/features`
 - **Start:** after Prateek's work is merged (you need `src/load_data.py`). Run `git pull` on `main` first. Abhayanth starts after your work is merged.
 
 ## Why these features
@@ -23,7 +23,7 @@ cd aml-rul-fd001
 python3 -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-git checkout -b akhil/features
+git checkout -b yogesh/features
 ```
 
 ## Step 1 — `src/features.py`
@@ -118,7 +118,7 @@ Finally, run **Kernel → Restart & Run All**, so the outputs are saved.
 ```bash
 git add src/features.py notebooks/02_features.ipynb
 git commit -m "Add rolling mean, std and slope features"
-git push -u origin akhil/features
+git push -u origin yogesh/features
 ```
 
 Open a pull request on GitHub. Touch only your two files.
