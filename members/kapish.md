@@ -26,7 +26,7 @@ git checkout -b kapish/evaluation-linear
 
 ## Step 1 — `src/evaluation.py`
 
-Use exactly these names. Abhishek and Ashrith import them.
+Use exactly these names. Abhishek and Vikash Kumar import them.
 
 | Name | What it must be |
 | --- | --- |
@@ -87,7 +87,7 @@ Sections, in this order:
    
    Count the negative predictions. Don't clip them.
 7. **Coefficients:** Elastic Net coefficients (`model[-1].coef_`) as a Series indexed by `FEATURES`. Show the top 10 by absolute value, and count how many are exactly 0 (L1 removed them).
-8. **Save predictions.** No test scoring here; Ashrith does that.
+8. **Save predictions.** No test scoring here; Vikash Kumar does that.
    - `results/val_predictions_linear.csv`, columns exactly `engine_id, cycle, ols_v1, elastic_net_v2` (100 rows, `val_pts` order)
    - `results/test_predictions_linear.csv`, columns exactly `engine_id, ols_v1, elastic_net_v2` (100 rows)
    

@@ -4,7 +4,7 @@
 
 - **Your files:** `notebooks/04_tree_models.ipynb` (plus the 2 prediction files it writes)
 - **Branch:** `abhishek/tree-models`
-- **Start:** after Kapish's work is merged (you need `load_data.py`, `features.py`, `evaluation.py`). Run `git pull` on `main` first. Ashrith starts after your work is merged.
+- **Start:** after Kapish's work is merged (you need `load_data.py`, `features.py`, `evaluation.py`). Run `git pull` on `main` first. Vikash Kumar starts after your work is merged.
 
 ## Why trees
 
@@ -65,7 +65,7 @@ Sections, in this order:
 4. **Fit check:** RMSE on all `train_df` rows vs all `val_df` rows for both models. Write one sentence: Random Forest fits the training rows much better than validation (some overfitting), and boosting less so.
 5. **Predicted vs actual:** one figure with 2 panels (RF, GB). Each shows predicted RUL against true RUL at the 100 validation points, with a diagonal line.
 6. **Feature importance:** `pd.Series(rf.feature_importances_, index=FEATURES)`, top 10 as a horizontal bar chart. Write 1–2 sentences: `cycle` leads, then sensor rolling means. Importance shows what the model **uses**, not what **causes** failure, and correlated features share credit.
-7. **Save predictions.** No test scoring here; Ashrith does that.
+7. **Save predictions.** No test scoring here; Vikash Kumar does that.
    - `results/val_predictions_trees.csv`, columns exactly `engine_id, cycle, random_forest, gradient_boosting` (100 rows, `val_pts` order)
    - `results/test_predictions_trees.csv`, columns exactly `engine_id, random_forest, gradient_boosting` (100 rows)
    

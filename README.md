@@ -72,7 +72,7 @@ Run the notebooks in order: 01 → 02 → 03 → 04 → 05.
 | Yogesh | Rolling features | [members/yogesh.md](members/yogesh.md) |
 | Vikash Kumar | Final evaluation: validation and test, early/late breakdown | [members/vikash.md](members/vikash.md) |
 
-Work order (each part needs the previous one merged): Prateek → Yogesh → Kapish → Abhishek → Ashrith.
+Work order (each part needs the previous one merged): Prateek → Yogesh → Kapish → Abhishek → Vikash Kumar.
 
 ## Earlier work
 
