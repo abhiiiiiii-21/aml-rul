@@ -1,0 +1,9 @@
+set,model,n,mae,rmse,early_n,early_mae,early_rmse,late_n,late_mae,late_rmse,late_over_pct
+validation,ols_v1,100,32.86,42.92,22,47.31,64.87,78,28.79,34.27,88.46
+validation,elastic_net_v2,100,31.66,41.77,22,46.31,66.02,78,27.52,31.74,85.9
+validation,random_forest,100,25.03,40.17,22,49.33,69.59,78,18.17,26.5,73.08
+validation,gradient_boosting,100,26.12,40.17,22,50.92,69.54,78,19.13,26.54,69.23
+test,ols_v1,100,24.91,31.17,11,19.44,23.0,89,25.58,32.04,87.64
+test,elastic_net_v2,100,23.61,29.04,11,16.05,20.6,89,24.55,29.92,83.15
+test,random_forest,100,18.95,25.88,11,21.41,25.8,89,18.65,25.89,69.66
+test,gradient_boosting,100,18.54,25.33,11,18.66,22.98,89,18.53,25.61,67.42
