@@ -4,7 +4,7 @@
 
 - **Your files:** `src/load_data.py`, `notebooks/01_eda.ipynb`
 - **Branch:** `prateek/data-eda`
-- **Start:** now. You are first. Akhil starts when your work is merged.
+- **Start:** now. You are first. Yogesh starts when your work is merged.
 
 ## The data in 4 lines
 
