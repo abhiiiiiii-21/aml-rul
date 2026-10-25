@@ -1,9 +1,9 @@
-# AML Project — Srijan: Tree models
+# AML Project — Abhishek: Tree models
 
 **Your part:** train the two non-linear models the brief asks for, Random Forest and gradient boosting, on the same features and split as the linear baseline. Show what they rely on and save their predictions.
 
 - **Your files:** `notebooks/04_tree_models.ipynb` (plus the 2 prediction files it writes)
-- **Branch:** `srijan/tree-models`
+- **Branch:** `abhishek/tree-models`
 - **Start:** after Kapish's work is merged (you need `load_data.py`, `features.py`, `evaluation.py`). Run `git pull` on `main` first. Ashrith starts after your work is merged.
 
 ## Why trees
@@ -24,7 +24,7 @@ cd aml-rul-fd001
 python3 -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-git checkout -b srijan/tree-models
+git checkout -b abhishek/tree-models
 ```
 
 ## `notebooks/04_tree_models.ipynb`
@@ -92,7 +92,7 @@ If the RF numbers are slightly off, check three things: the `FEATURES` order, `r
 ```bash
 git add notebooks/04_tree_models.ipynb results/val_predictions_trees.csv results/test_predictions_trees.csv
 git commit -m "Add Random Forest and gradient boosting"
-git push -u origin srijan/tree-models
+git push -u origin abhishek/tree-models
 ```
 
 Open a pull request on GitHub. Touch only these files.

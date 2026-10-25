@@ -4,7 +4,7 @@
 
 - **Your files:** `src/evaluation.py`, `notebooks/03_linear_models.ipynb`
 - **Branch:** `kapish/evaluation-linear`
-- **Start:** after Yogesh's work is merged (you need `load_data.py` and `features.py`). Run `git pull` on `main` first. Srijan starts when your `evaluation.py` is merged.
+- **Start:** after Yogesh's work is merged (you need `load_data.py` and `features.py`). Run `git pull` on `main` first. Abhishek starts when your `evaluation.py` is merged.
 
 ## Why it is set up this way
 
@@ -26,7 +26,7 @@ git checkout -b kapish/evaluation-linear
 
 ## Step 1 — `src/evaluation.py`
 
-Use exactly these names. Srijan and Ashrith import them.
+Use exactly these names. Abhishek and Ashrith import them.
 
 | Name | What it must be |
 | --- | --- |
@@ -123,7 +123,7 @@ git commit -m "Add linear baseline: OLS and Elastic Net"
 git push -u origin kapish/evaluation-linear
 ```
 
-Open a pull request on GitHub. Srijan starts after it is merged.
+Open a pull request on GitHub. Abhishek starts after it is merged.
 
 ## Questions you should be able to answer
 

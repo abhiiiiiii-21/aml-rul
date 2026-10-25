@@ -43,7 +43,7 @@ notebooks/
   01_eda.ipynb                explore the data                              Prateek
   02_features.ipynb           build and explain the features                Yogesh
   03_linear_models.ipynb      OLS and Elastic Net                           Kapish
-  04_tree_models.ipynb        Random Forest and gradient boosting           Srijan
+  04_tree_models.ipynb        Random Forest and gradient boosting           Abhishek
   05_final_evaluation.ipynb   all models on validation and test, early/late Ashrith
 results/                      predictions and final results (written by the notebooks)
 members/                      each member's instructions and check numbers
@@ -67,14 +67,14 @@ Run the notebooks in order: 01 → 02 → 03 → 04 → 05.
 | Member | Part | Instructions |
 | --- | --- | --- |
 | Prateek | Data loading, RUL label, exploratory analysis, flat-sensor removal | [members/prateek.md](members/prateek.md) |
-| Srijan | Tree models: Random Forest and gradient boosting | [members/srijan.md](members/srijan.md) |
+| Abhishek | Tree models: Random Forest and gradient boosting | [members/abhishek.md](members/abhishek.md) |
 | Kapish | Engine split, validation points, metrics, linear models | [members/kapish.md](members/kapish.md) |
 | Yogesh | Rolling features | [members/yogesh.md](members/yogesh.md) |
 | Ashrith | Final evaluation: validation and test, early/late breakdown | [members/ashrith.md](members/ashrith.md) |
 
-Work order (each part needs the previous one merged): Prateek → Yogesh → Kapish → Srijan → Ashrith.
+Work order (each part needs the previous one merged): Prateek → Yogesh → Kapish → Abhishek → Ashrith.
 
 ## Earlier work
 
 Model settings were chosen on the validation set in our development repo, which also holds the earlier experiments (tuning grids, RUL cap test, feature comparisons):
-https://github.com/Srijan76-code/aml_rul_project
+https://github.com/Abhishek76-code/aml_rul_project

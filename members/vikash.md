@@ -4,7 +4,7 @@
 
 - **Your files:** `notebooks/05_final_evaluation.ipynb` (plus `results/final_results.csv` and `results/the_gap.png`, which it writes)
 - **Branch:** `ashrith/final-evaluation`
-- **Start:** after Kapish's and Srijan's work is merged (you need their 4 prediction files in `results/`). Run `git pull` on `main` first. You can write the code earlier and run it once the files are there.
+- **Start:** after Kapish's and Abhishek's work is merged (you need their 4 prediction files in `results/`). Run `git pull` on `main` first. You can write the code earlier and run it once the files are there.
 
 ## Key ideas
 
@@ -112,7 +112,7 @@ In simple words:
 
 Your numbers show it:
 1. **Predictions stop at about 175–190.** For engines with about 268 cycles left, every model predicts about 145, so they can't tell "200 left" from "300 left". That is why early RMSE is about 65–70.
-2. **The models lean on age.** `cycle` is the top Random Forest feature (Srijan's notebook), so "how old is the engine" counts as much as the sensor history.
+2. **The models lean on age.** `cycle` is the top Random Forest feature (Abhishek's notebook), so "how old is the engine" counts as much as the sensor history.
 
 Phase 2 fix: an LSTM reads the raw sensor **sequence** and learns its own patterns over a longer window, instead of using our fixed summaries.
 
