@@ -4,7 +4,7 @@
 
 - **Your files:** `notebooks/05_final_evaluation.ipynb` (plus `results/final_results.csv` and `results/the_gap.png`, which it writes)
 - **Branch:** `ashrith/final-evaluation`
-- **Start:** after Abhayanth's and Srijan's work is merged (you need their 4 prediction files in `results/`). Run `git pull` on `main` first. You can write the code earlier and run it once the files are there.
+- **Start:** after Kapish's and Srijan's work is merged (you need their 4 prediction files in `results/`). Run `git pull` on `main` first. You can write the code earlier and run it once the files are there.
 
 ## Key ideas
 

@@ -1,9 +1,9 @@
-# AML Project — Abhayanth: Split, metrics and linear models
+# AML Project — Kapish: Split, metrics and linear models
 
 **Your part:** decide how models are scored fairly (engine split, fixed validation points, MAE/RMSE), and build the linear baseline every other model is compared against.
 
 - **Your files:** `src/evaluation.py`, `notebooks/03_linear_models.ipynb`
-- **Branch:** `abhayanth/evaluation-linear`
+- **Branch:** `kapish/evaluation-linear`
 - **Start:** after Yogesh's work is merged (you need `load_data.py` and `features.py`). Run `git pull` on `main` first. Srijan starts when your `evaluation.py` is merged.
 
 ## Why it is set up this way
@@ -16,12 +16,12 @@
 Python 3.12 or newer.
 
 ```bash
-git clone https://github.com/Abhayanthk/aml-rul-fd001.git
-cd aml-rul-fd001
+git clone https://github.com/abhiiiiiii-21/aml-rul.git
+cd aml-rul
 python3 -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-git checkout -b abhayanth/evaluation-linear
+git checkout -b kapish/evaluation-linear
 ```
 
 ## Step 1 — `src/evaluation.py`
@@ -120,7 +120,7 @@ git add src/evaluation.py
 git commit -m "Add engine split, validation points and MAE/RMSE"
 git add notebooks/03_linear_models.ipynb results/val_predictions_linear.csv results/test_predictions_linear.csv
 git commit -m "Add linear baseline: OLS and Elastic Net"
-git push -u origin abhayanth/evaluation-linear
+git push -u origin kapish/evaluation-linear
 ```
 
 Open a pull request on GitHub. Srijan starts after it is merged.

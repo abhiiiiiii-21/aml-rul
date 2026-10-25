@@ -4,7 +4,7 @@
 
 - **Your files:** `src/features.py`, `notebooks/02_features.ipynb`
 - **Branch:** `yogesh/features`
-- **Start:** after Prateek's work is merged (you need `src/load_data.py`). Run `git pull` on `main` first. Abhayanth starts after your work is merged.
+- **Start:** after Prateek's work is merged (you need `src/load_data.py`). Run `git pull` on `main` first. Kapish starts after your work is merged.
 
 ## Why these features
 
