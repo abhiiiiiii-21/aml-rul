@@ -4,7 +4,7 @@
 
 - **Your files:** `src/features.py`, `notebooks/02_features.ipynb`
 - **Branch:** `akhil/features`
-- **Start:** after Aryan's work is merged (you need `src/load_data.py`). Run `git pull` on `main` first. Abhayanth starts after your work is merged.
+- **Start:** after Prateek's work is merged (you need `src/load_data.py`). Run `git pull` on `main` first. Abhayanth starts after your work is merged.
 
 ## Why these features
 
@@ -36,7 +36,7 @@ Use exactly these names:
 | `FEATURES` | `["cycle"] + SENSORS + [f"{s}_{stat}" for s in SENSORS for stat in ["mean", "std", "slope"]]`, which is 57 names. Keep this exact order: the tree models' results depend on it. |
 | `add_rolling_features(df)` | Returns a **copy** of `df` with 42 new columns: `<sensor>_mean`, `<sensor>_std`, `<sensor>_slope` for each of the 14 `SENSORS` |
 
-Import `SENSORS` from Aryan's file: `from load_data import SENSORS`.
+Import `SENSORS` from Prateek's file: `from load_data import SENSORS`.
 
 Rules inside `add_rolling_features(df)`:
 
