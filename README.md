@@ -30,6 +30,35 @@ load data ──> RUL label ──> rolling features ──> split by engine ─
 - **Features:** cycle, 14 useful sensors, and each sensor's mean, std and slope over the last 10 cycles of the same engine (57 features). Features only use the current and earlier cycles.
 - **Metrics:** MAE and RMSE in cycles, plus the same split into early points (true RUL > 125) and late points (true RUL ≤ 125).
 - **Test set:** scored once, in notebook 05.
+- **Columns removed:** `setting_3` and sensors 1, 5, 6, 10, 16, 18, 19 are constant or nearly constant. No missing values in the training or test data.
+
+## Results
+
+Validation scores on the 100 fixed points (lower is better, in cycles):
+
+| Model | MAE | RMSE |
+| --- | --- | --- |
+| OLS Linear Regression | 32.86 | 42.92 |
+| Elastic Net | 31.66 | 41.77 |
+| Random Forest | **25.03** | 40.17 |
+| Gradient Boosting | 26.12 | **40.17** |
+
+- Random Forest has the lowest MAE, about 24% below OLS. Random Forest and Gradient Boosting tie on RMSE.
+- Tree models cut MAE by about 5 to 8 cycles versus the linear baselines, so nonlinear sensor patterns matter.
+- RMSE is much higher than MAE for every model: a few large errors dominate.
+- Held-out test MAE so far (linear models only): OLS 24.91, Elastic Net 23.61. Tree-model test results are not yet recorded.
+
+### Limitations
+
+- All four models underpredict engines with a high true RUL (above 200). For the linear models, the mean error in the highest RUL band is about −120 cycles.
+- The 10-cycle rolling window sees only recent behaviour. It does not capture the engine's longer degradation history.
+- The high-RUL subset is small (5 validation points), so treat that result with caution.
+
+### Next steps
+
+1. Run notebook 05 to complete and verify the test evaluation for all models.
+2. Try longer rolling windows and more temporal features.
+3. Test a sequence model such as an LSTM for longer sensor histories (later phase).
 
 ## Structure
 
@@ -73,6 +102,11 @@ Run the notebooks in order: 01 → 02 → 03 → 04 → 05.
 | Vikash Kumar | Final evaluation: validation and test, early/late breakdown | [members/vikash.md](members/vikash.md) |
 
 Work order (each part needs the previous one merged): Prateek → Yogesh → Kapish → Abhishek → Vikash Kumar.
+
+## Deliverables
+
+- [Report.pdf](Report.pdf): full project report (method, results, team contributions, conclusions).
+- [Presentation.pdf](Presentation.pdf): project slides (problem, data, exploration, features, models, results, next steps).
 
 ## Earlier work
 
