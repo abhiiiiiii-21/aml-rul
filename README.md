@@ -119,6 +119,12 @@ report/                       IEEE LaTeX report
 
 Run Phase 2 notebooks from inside `notebooks/phase2/`. Install requirements first (adds `torch`).
 
+Run the sequence-pipeline tests from the repository root with:
+
+```bash
+.venv/bin/python -m pytest -q
+```
+
 ## Deliverables
 
 - [Report.pdf](Report.pdf): full project report (method, results, team contributions, conclusions).
