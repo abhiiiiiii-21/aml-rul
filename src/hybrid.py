@@ -14,6 +14,8 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 import torch
+from sklearn.base import RegressorMixin
+from sklearn.ensemble import HistGradientBoostingRegressor, RandomForestRegressor
 from torch import nn
 
 try:
@@ -28,6 +30,16 @@ except ImportError:
 
 KEYS = ["engine_id", "cycle"]
 FEATURE_GROUPS = ("rolling", "dl")  # Phase 1 rolling features, DL estimate(s)
+
+# Phase 1 tree settings, copied from notebooks/04_tree_models.ipynb (not retuned).
+TREE_PARAMS: Dict[str, Dict[str, Any]] = {
+    "random_forest": {
+        "n_estimators": 300, "min_samples_leaf": 20, "max_features": 0.33, "n_jobs": -1,
+    },
+    "gradient_boosting": {
+        "learning_rate": 0.05, "max_iter": 200, "max_depth": 3, "early_stopping": False,
+    },
+}
 
 
 @dataclass
@@ -201,3 +213,64 @@ def build_hybrid_features(
     expected = points[KEYS] if points is not None else df.sort_values(KEYS)[KEYS]
     assert out.index.equals(pd.MultiIndex.from_frame(expected)), "row alignment broken"
     return out
+
+
+def make_tree(kind: str = "random_forest", seed: int = 42) -> RegressorMixin:
+    """Unfitted tree regressor with the Phase 1 hyperparameters and `seed`."""
+    if kind == "random_forest":
+        return RandomForestRegressor(random_state=seed, **TREE_PARAMS[kind])
+    if kind == "gradient_boosting":
+        return HistGradientBoostingRegressor(random_state=seed, **TREE_PARAMS[kind])
+    raise ValueError(f"unknown tree: {kind}")
+
+
+@dataclass
+class HybridModel:
+    """A fitted tree on hybrid features; `residual` means it predicts y - d."""
+
+    tree: RegressorMixin
+    columns: List[str]
+    residual: bool = False
+    d_column: str = "d"
+
+
+def fit_hybrid(
+    X: pd.DataFrame,
+    y: np.ndarray,
+    tree: str = "random_forest",
+    residual: bool = False,
+    seed: int = 42,
+    d_column: str = "d",
+) -> HybridModel:
+    """Fit the tree on the hybrid table `X` (from `build_hybrid_features`).
+
+    Hybrid A: `residual=False`, the tree predicts RUL. Hybrid C: `residual=True`,
+    the tree predicts the DL error `y - X[d_column]`. `d` must be out-of-fold.
+    """
+    y = np.asarray(y, dtype=float)
+    if len(y) != len(X):
+        raise ValueError("X and y must have the same number of rows")
+    if residual and d_column not in X:
+        raise ValueError(f"residual hybrid needs the DL column {d_column!r}")
+    target = y - X[d_column].to_numpy() if residual else y
+    model = make_tree(tree, seed)
+    model.fit(X, target)
+    return HybridModel(model, list(X.columns), residual, d_column)
+
+
+def predict_hybrid(model: HybridModel, X: pd.DataFrame) -> np.ndarray:
+    """RUL predictions in cycles, clipped at 0."""
+    if list(X.columns) != model.columns:
+        raise ValueError("X must have the same columns, in the same order, as in training")
+    pred = model.tree.predict(X)
+    if model.residual:
+        pred = pred + X[model.d_column].to_numpy()
+    return np.clip(pred, 0, None)
+
+
+def average_hybrid(dl_pred: np.ndarray, tree_pred: np.ndarray) -> np.ndarray:
+    """Hybrid B: the plain mean of a DL and a tree prediction (no fitted weights)."""
+    dl_pred, tree_pred = np.asarray(dl_pred, dtype=float), np.asarray(tree_pred, dtype=float)
+    if dl_pred.shape != tree_pred.shape:
+        raise ValueError("predictions must have the same shape")
+    return (dl_pred + tree_pred) / 2

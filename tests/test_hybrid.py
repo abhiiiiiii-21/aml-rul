@@ -5,8 +5,8 @@ import pytest
 from src.evaluation import VAL_ENGINES, split_train_val
 from src.features import FEATURES as ROLLING
 from src.hybrid import (
-    KEYS, build_hybrid_features, dl_predict, engine_folds, fold_mean_predict,
-    oof_predictions, split_fit_stop,
+    KEYS, average_hybrid, build_hybrid_features, dl_predict, engine_folds, fit_hybrid,
+    fold_mean_predict, make_tree, oof_predictions, predict_hybrid, split_fit_stop,
 )
 from src.load_data import load_test, load_train
 
@@ -137,3 +137,43 @@ def test_features_reject_missing_dl_rows():
     df = small_train(2)
     with pytest.raises(ValueError):
         build_hybrid_features(df, fake_dl(df).iloc[1:])
+
+
+def toy_table(n: int = 200, seed: int = 0):
+    """Hybrid-like table where y = d + 2 * x, so the DL error is learnable from x."""
+    rng = np.random.default_rng(seed)
+    X = pd.DataFrame({"x": rng.uniform(0, 10, n), "d": rng.uniform(20, 100, n)})
+    return X, X["d"].to_numpy() + 2 * X["x"].to_numpy()
+
+
+def test_make_tree_uses_phase1_settings():
+    rf = make_tree("random_forest", seed=7)
+    assert (rf.n_estimators, rf.min_samples_leaf, rf.max_features, rf.random_state) == (
+        300, 20, 0.33, 7,
+    )
+    gb = make_tree("gradient_boosting")
+    assert (gb.learning_rate, gb.max_iter, gb.max_depth) == (0.05, 200, 3)
+    with pytest.raises(ValueError):
+        make_tree("svm")
+
+
+def test_residual_hybrid_adds_back_the_dl_estimate():
+    X, y = toy_table()
+    model = fit_hybrid(X, y, tree="gradient_boosting", residual=True)
+    raw = model.tree.predict(X)
+    np.testing.assert_allclose(predict_hybrid(model, X), np.clip(raw + X["d"], 0, None))
+    assert np.mean(np.abs(raw - 2 * X["x"])) < 2  # the tree learnt the residual 2x
+
+
+def test_predict_hybrid_checks_columns_and_clips_at_zero():
+    X, y = toy_table()
+    model = fit_hybrid(X, y - 200, tree="gradient_boosting")  # targets are all negative
+    assert (predict_hybrid(model, X) == 0).all()
+    with pytest.raises(ValueError):
+        predict_hybrid(model, X[["d", "x"]])
+
+
+def test_average_hybrid_is_the_plain_mean():
+    np.testing.assert_allclose(average_hybrid([10, 20], [30, 0]), [20, 10])
+    with pytest.raises(ValueError):
+        average_hybrid([1, 2], [1, 2, 3])
