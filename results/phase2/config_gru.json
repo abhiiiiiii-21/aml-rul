@@ -1,0 +1,33 @@
+{
+  "model": "gru_v1",
+  "kind": "gru",
+  "hidden": 64,
+  "layers": 2,
+  "dropout": 0.3,
+  "window": 30,
+  "seed": 42,
+  "optimizer": "AdamW",
+  "lr": 0.001,
+  "weight_decay": 0.0001,
+  "batch_size": 256,
+  "grad_clip": 1.0,
+  "loss": "MSE on RUL/100",
+  "max_epochs": 60,
+  "patience": 8,
+  "restore_best": true,
+  "epochs_run": 21,
+  "best_epoch": 13,
+  "best_val_window_mae": 26.78481101989746,
+  "n_params": 40385,
+  "val_points": {
+    "mae": 23.175287796258928,
+    "rmse": 36.34322002392031,
+    "early_mae": 43.34457293423739,
+    "late_mae": 17.48651506503423
+  },
+  "seeds_reported": [
+    42,
+    43,
+    44
+  ]
+}

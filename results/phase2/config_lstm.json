@@ -1,0 +1,33 @@
+{
+  "model": "lstm_v1",
+  "kind": "lstm",
+  "hidden": 64,
+  "layers": 1,
+  "dropout": 0.2,
+  "window": 30,
+  "seed": 42,
+  "optimizer": "AdamW",
+  "lr": 0.001,
+  "weight_decay": 0.0001,
+  "batch_size": 256,
+  "grad_clip": 1.0,
+  "loss": "MSE on RUL/100",
+  "max_epochs": 60,
+  "patience": 8,
+  "restore_best": true,
+  "epochs_run": 15,
+  "best_epoch": 7,
+  "best_val_window_mae": 26.377851486206055,
+  "n_params": 20545,
+  "val_points": {
+    "mae": 19.4076308631897,
+    "rmse": 34.45398837710185,
+    "early_mae": 43.727297349409625,
+    "late_mae": 12.548237751691769
+  },
+  "seeds_reported": [
+    42,
+    43,
+    44
+  ]
+}
