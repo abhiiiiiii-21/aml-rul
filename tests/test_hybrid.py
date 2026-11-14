@@ -3,8 +3,10 @@ import pandas as pd
 import pytest
 
 from src.evaluation import VAL_ENGINES, split_train_val
+from src.features import FEATURES as ROLLING
 from src.hybrid import (
-    KEYS, dl_predict, engine_folds, fold_mean_predict, oof_predictions, split_fit_stop,
+    KEYS, build_hybrid_features, dl_predict, engine_folds, fold_mean_predict,
+    oof_predictions, split_fit_stop,
 )
 from src.load_data import load_test, load_train
 
@@ -92,3 +94,46 @@ def test_fold_mean_predict_averages_the_fold_models():
     each = [dl_predict(fm.model, fm.scaler, val_one, window=5)["d"] for fm in models]
     np.testing.assert_allclose(mean["d"], np.mean(each, axis=0), rtol=1e-6)
     assert len(mean) == len(val_one)
+
+
+def fake_dl(df: pd.DataFrame) -> pd.DataFrame:
+    """A DL prediction whose value encodes its own key, shuffled out of order."""
+    out = df[KEYS].copy()
+    out["d"] = out["engine_id"] * 1000 + out["cycle"]
+    return out.sample(frac=1.0, random_state=0)
+
+
+def test_features_join_dl_by_key_not_by_position():
+    df = small_train(3)
+    table = build_hybrid_features(df.sample(frac=1.0, random_state=1), fake_dl(df))
+    keys = table.index.to_frame(index=False)
+    assert keys.equals(df.sort_values(KEYS)[KEYS].reset_index(drop=True))
+    np.testing.assert_array_equal(table["d"], keys["engine_id"] * 1000 + keys["cycle"])
+    np.testing.assert_array_equal(table["cycle"], keys["cycle"])
+    assert list(table.columns) == list(ROLLING) + ["d"]
+
+
+def test_features_follow_points_order():
+    df = small_train(3)
+    points = df[KEYS].sample(n=7, random_state=2)
+    table = build_hybrid_features(df, fake_dl(df), points=points)
+    keys = table.index.to_frame(index=False)
+    assert keys.equals(points.reset_index(drop=True))
+    np.testing.assert_array_equal(table["d"], keys["engine_id"] * 1000 + keys["cycle"])
+
+
+def test_feature_groups_select_columns():
+    df = small_train(2)
+    assert list(build_hybrid_features(df, fake_dl(df), groups=["dl"]).columns) == ["d"]
+    rolling_only = build_hybrid_features(df, None, groups=["rolling"])
+    assert list(rolling_only.columns) == list(ROLLING)
+    with pytest.raises(ValueError):
+        build_hybrid_features(df, None, groups=["dl"])
+    with pytest.raises(ValueError):
+        build_hybrid_features(df, None, groups=["embedding"])
+
+
+def test_features_reject_missing_dl_rows():
+    df = small_train(2)
+    with pytest.raises(ValueError):
+        build_hybrid_features(df, fake_dl(df).iloc[1:])

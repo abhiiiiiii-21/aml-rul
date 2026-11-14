@@ -9,7 +9,7 @@ Hybrid B is the plain mean of a DL prediction and a tree prediction. Hybrid C
 lets the tree predict the residual `y - d`.
 """
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
@@ -18,14 +18,16 @@ from torch import nn
 
 try:
     import dl_models
+    import features
     import sequences
     import train
     from evaluation import VAL_ENGINES
 except ImportError:
-    from src import dl_models, sequences, train
+    from src import dl_models, features, sequences, train
     from src.evaluation import VAL_ENGINES
 
 KEYS = ["engine_id", "cycle"]
+FEATURE_GROUPS = ("rolling", "dl")  # Phase 1 rolling features, DL estimate(s)
 
 
 @dataclass
@@ -157,4 +159,45 @@ def fold_mean_predict(
         assert p[KEYS].equals(preds[0][KEYS])
     out = preds[0][KEYS].copy()
     out["d"] = np.mean([p["d"].to_numpy() for p in preds], axis=0)
+    return out
+
+
+def build_hybrid_features(
+    df: pd.DataFrame,
+    dl_prediction: Optional[pd.DataFrame],
+    groups: Sequence[str] = FEATURE_GROUPS,
+    points: Optional[pd.DataFrame] = None,
+) -> pd.DataFrame:
+    """Hybrid input table: Phase 1 rolling features and/or DL estimates, one row per key.
+
+    `df` holds raw rows of whole engines (rolling features are computed here, per
+    engine, from current and earlier cycles). `dl_prediction` has engine_id,
+    cycle and one or more DL columns (every column except the keys and `fold`).
+    Rows are joined on (engine_id, cycle), never by position. Returns the feature
+    columns only, indexed by (engine_id, cycle), in the order of `points` if given,
+    else of `df` sorted by engine_id and cycle. (`cycle` is also a rolling feature.)
+    """
+    unknown = set(groups) - set(FEATURE_GROUPS)
+    if not groups or unknown:
+        raise ValueError(f"groups must be a non-empty subset of {FEATURE_GROUPS}")
+    rows = features.add_rolling_features(df.sort_values(KEYS)).reset_index(drop=True)
+    if points is not None:
+        rows = points[KEYS].merge(rows, on=KEYS, how="left", sort=False)
+        if rows[features.FEATURES].isna().any().any():
+            raise ValueError("some requested points are not in df")
+    columns = list(features.FEATURES) if "rolling" in groups else []
+    if "dl" in groups:
+        if dl_prediction is None:
+            raise ValueError("the dl group needs dl_prediction")
+        dl_cols = [c for c in dl_prediction.columns if c not in KEYS + ["fold"]]
+        rows = rows.merge(
+            dl_prediction[KEYS + dl_cols], on=KEYS, how="left", sort=False,
+            validate="one_to_one",
+        )
+        if rows[dl_cols].isna().any().any():
+            raise ValueError("dl_prediction is missing some (engine_id, cycle) rows")
+        columns += [c for c in dl_cols if c not in columns]
+    out = rows.set_index(KEYS, drop=False)[columns]
+    expected = points[KEYS] if points is not None else df.sort_values(KEYS)[KEYS]
+    assert out.index.equals(pd.MultiIndex.from_frame(expected)), "row alignment broken"
     return out
