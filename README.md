@@ -105,7 +105,7 @@ Work order (each part needs the previous one merged): Prateek → Yogesh → Kap
 
 ## Phase 2: deep learning
 
-Phase 2 adds sequence models (LSTM, GRU, 1D-CNN, Transformer) and a hybrid ML + DL model on the same split, the same 100 validation points and the same metrics as Phase 1. Plan, rules and proposed owners: [docs/PHASE2_PLAN.md](docs/PHASE2_PLAN.md).
+Phase 2 adds sequence models (LSTM, GRU, 1D-CNN, Transformer) and a hybrid ML + DL model on the same split, the same 100 validation points and the same metrics as Phase 1.
 
 ```
 src/
