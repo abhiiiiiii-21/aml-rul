@@ -1,0 +1,41 @@
+{
+  "model": "cnn1d_v1",
+  "kind": "cnn1d",
+  "kwargs": {
+    "channels": 64,
+    "kernel": 5,
+    "dropout": 0.2,
+    "layers": 2,
+    "dilation": 4,
+    "norm": "none",
+    "residual": false,
+    "pool": "avg"
+  },
+  "window": 30,
+  "seed": 42,
+  "optimizer": "AdamW",
+  "lr": 0.001,
+  "weight_decay": 0.0001,
+  "batch_size": 256,
+  "grad_clip": 1.0,
+  "loss": "MSE on RUL/100",
+  "max_epochs": 60,
+  "patience": 8,
+  "restore_best": true,
+  "epochs_run": 13,
+  "best_epoch": 5,
+  "best_val_window_mae": 28.861339569091797,
+  "n_params": 25153,
+  "val_points": {
+    "mae": 24.323458976745606,
+    "rmse": 36.69865453089517,
+    "early_mae": 41.33415707674894,
+    "late_mae": 19.52556976905236
+  },
+  "seeds_reported": [
+    42,
+    43,
+    44
+  ],
+  "receptive_field": 33
+}
