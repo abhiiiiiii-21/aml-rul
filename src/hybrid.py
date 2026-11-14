@@ -23,13 +23,15 @@ try:
     import features
     import sequences
     import train
-    from evaluation import VAL_ENGINES
+    from evaluation import VAL_ENGINES, mae, rmse
 except ImportError:
     from src import dl_models, features, sequences, train
-    from src.evaluation import VAL_ENGINES
+    from src.evaluation import VAL_ENGINES, mae, rmse
 
 KEYS = ["engine_id", "cycle"]
 FEATURE_GROUPS = ("rolling", "dl")  # Phase 1 rolling features, DL estimate(s)
+
+RUL_BANDS = (0, 50, 100, 150, 200, np.inf)  # true-RUL bands for the signed-error check
 
 # Phase 1 tree settings, copied from notebooks/04_tree_models.ipynb (not retuned).
 TREE_PARAMS: Dict[str, Dict[str, Any]] = {
@@ -274,3 +276,36 @@ def average_hybrid(dl_pred: np.ndarray, tree_pred: np.ndarray) -> np.ndarray:
     if dl_pred.shape != tree_pred.shape:
         raise ValueError("predictions must have the same shape")
     return (dl_pred + tree_pred) / 2
+
+
+def point_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> Dict[str, float]:
+    """MAE, RMSE, and MAE of the early (true RUL > 125) and late (<= 125) points."""
+    y_true, y_pred = np.asarray(y_true, dtype=float), np.asarray(y_pred, dtype=float)
+    early = y_true > train.EARLY_LATE_SPLIT
+    return {
+        "mae": mae(y_true, y_pred),
+        "rmse": rmse(y_true, y_pred),
+        "early_mae": mae(y_true[early], y_pred[early]) if early.any() else float("nan"),
+        "late_mae": mae(y_true[~early], y_pred[~early]) if (~early).any() else float("nan"),
+    }
+
+
+def band_errors(
+    y_true: np.ndarray, predictions: Dict[str, np.ndarray], bands: Sequence[float] = RUL_BANDS
+) -> pd.DataFrame:
+    """Mean signed error (prediction - truth, cycles) per true-RUL band, with counts.
+
+    Bands are left-closed: [0, 50), [50, 100), ..., [200, inf). Negative means the
+    model underpredicts the remaining life.
+    """
+    y_true = np.asarray(y_true, dtype=float)
+    labels = [
+        f"{lo:g}+" if np.isinf(hi) else f"{lo:g}-{hi:g}" for lo, hi in zip(bands[:-1], bands[1:])
+    ]
+    band = pd.cut(y_true, bins=list(bands), right=False, labels=labels)
+    table = pd.DataFrame({"band": band})
+    for name, pred in predictions.items():
+        table[name] = np.asarray(pred, dtype=float) - y_true
+    out = table.groupby("band", observed=False).mean()
+    out.insert(0, "n", table.groupby("band", observed=False).size())
+    return out.reset_index()

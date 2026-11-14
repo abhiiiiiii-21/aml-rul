@@ -5,8 +5,9 @@ import pytest
 from src.evaluation import VAL_ENGINES, split_train_val
 from src.features import FEATURES as ROLLING
 from src.hybrid import (
-    KEYS, average_hybrid, build_hybrid_features, dl_predict, engine_folds, fit_hybrid,
-    fold_mean_predict, make_tree, oof_predictions, predict_hybrid, split_fit_stop,
+    KEYS, average_hybrid, band_errors, build_hybrid_features, dl_predict, engine_folds,
+    fit_hybrid, fold_mean_predict, make_tree, oof_predictions, point_metrics,
+    predict_hybrid, split_fit_stop,
 )
 from src.load_data import load_test, load_train
 
@@ -177,3 +178,19 @@ def test_average_hybrid_is_the_plain_mean():
     np.testing.assert_allclose(average_hybrid([10, 20], [30, 0]), [20, 10])
     with pytest.raises(ValueError):
         average_hybrid([1, 2], [1, 2, 3])
+
+
+def test_point_metrics_split_early_and_late_at_125():
+    m = point_metrics([100, 200], [110, 170])
+    assert m["mae"] == pytest.approx(20)
+    assert m["rmse"] == pytest.approx(np.sqrt((100 + 900) / 2))
+    assert (m["early_mae"], m["late_mae"]) == (30, 10)
+
+
+def test_band_errors_are_signed_and_counted():
+    y = np.array([10, 40, 60, 250, 300])
+    table = band_errors(y, {"m": y + np.array([5, -5, 10, -100, -50])})
+    assert table["band"].astype(str).tolist() == ["0-50", "50-100", "100-150", "150-200", "200+"]
+    assert table["n"].tolist() == [2, 1, 0, 0, 2]
+    assert table["m"].tolist()[:2] == [0, 10] and table["m"].iloc[4] == -75
+    assert np.isnan(table["m"].iloc[2])
