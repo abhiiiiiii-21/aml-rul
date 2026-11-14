@@ -74,7 +74,7 @@ notebooks/
   03_linear_models.ipynb      OLS and Elastic Net                           Kapish
   04_tree_models.ipynb        Random Forest and gradient boosting           Abhishek
   05_final_evaluation.ipynb   all models on validation and test, early/late Vikash Kumar
-results/                      predictions and final results (written by the notebooks)
+results/phase1/                predictions and final results (Phase 1 notebooks)
 members/                      each member's instructions and check numbers
 ```
 
@@ -102,6 +102,22 @@ Run the notebooks in order: 01 → 02 → 03 → 04 → 05.
 | Vikash Kumar | Final evaluation: validation and test, early/late breakdown | [members/vikash.md](members/vikash.md) |
 
 Work order (each part needs the previous one merged): Prateek → Yogesh → Kapish → Abhishek → Vikash Kumar.
+
+## Phase 2: deep learning
+
+Phase 2 adds sequence models (LSTM, GRU, 1D-CNN, Transformer) and a hybrid ML + DL model on the same split, the same 100 validation points and the same metrics as Phase 1. Plan, rules and proposed owners: [docs/PHASE2_PLAN.md](docs/PHASE2_PLAN.md).
+
+```
+src/
+  sequences.py                scaler and sliding windows (30 cycles by default)
+  dl_models.py                LSTM / GRU / 1D-CNN regressors
+  train.py                    training loop, early stopping, prediction
+notebooks/phase2/             01 literature and EDA → 07 final evaluation
+results/phase2/               Phase 2 predictions and results
+report/                       IEEE LaTeX report
+```
+
+Run Phase 2 notebooks from inside `notebooks/phase2/`. Install requirements first (adds `torch`).
 
 ## Deliverables
 

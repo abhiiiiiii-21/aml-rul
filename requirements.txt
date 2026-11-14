@@ -4,3 +4,4 @@ scikit-learn==1.9.1
 scipy==1.18.1
 matplotlib==3.11.2
 jupyter==1.1.1
+torch==2.15.0

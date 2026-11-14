@@ -2,3 +2,6 @@
 __pycache__/
 .ipynb_checkpoints/
 .DS_Store
+*.pt
+*.pth
+results/phase2/*.npy
