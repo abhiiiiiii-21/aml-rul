@@ -1,0 +1,52 @@
+\section{Deep Learning Literature}
+\label{sec:literature}
+
+The C-MAPSS benchmark was introduced as a run-to-failure simulation of
+turbofan degradation \cite{saxena_2008_damage_prognosis}.  Its engine-indexed
+multivariate trajectories make it a natural test bed for models that learn
+temporal context rather than treating observations as independent rows.
+Long short-term memory (LSTM) networks use gated memory to preserve useful
+information over long intervals \cite{hochreiter_1997_lstm}; gated recurrent
+units (GRUs) provide a smaller alternative \cite{cho_2014_gru}.  In contrast,
+temporal convolutional networks (TCNs) use causal convolutions and a finite
+receptive field \cite{bai_2018_tcn}, while the Transformer replaces recurrence
+with attention \cite{vaswani_2017_transformer}.
+
+RUL studies commonly use convolutional encoders because local changes in
+sensor trajectories are predictive.  Babu et al. proposed a deep CNN
+regression approach for C-MAPSS \cite{babu_2016_dcnn}, and Li et al. studied
+deep convolutional features for prognostics \cite{li_2018_dcnn}.  LSTM-based
+RUL work further demonstrated that a sequence representation can model
+degradation history \cite{zheng_2017_lstm}.  Attention and CNN--recurrent
+hybrids are attractive extensions, but their extra parameters are a material
+risk when only 100 engines are available.  The literature also frequently
+uses a piecewise-linear cap near 125 cycles: this reduces the influence of
+uncertain early-life labels, but can remove information needed to correct the
+high-RUL underprediction seen in our uncapped Phase 1 baseline.
+
+\begin{table}[t]
+\caption{Scope of the reviewed literature. ``n/a'' means that the source or
+the accessible report did not state the item unambiguously.}
+\label{tab:literature}
+\centering
+\scriptsize
+\begin{tabular}{p{0.25\columnwidth}p{0.18\columnwidth}p{0.15\columnwidth}p{0.28\columnwidth}}
+\hline
+Source & Model & Subset & Limitation \\
+\hline
+Babu et al. & CNN & FD001--FD004 & Representation-sensitive \\
+Li et al. & CNN & FD001--FD004 & Preprocessing-sensitive \\
+Zheng et al. & LSTM & FD001--FD004 & Capping discards high-RUL detail \\
+Bai et al. & TCN & n/a & Receptive-field dependent \\
+Vaswani et al. & Transformer & n/a & Attention cost grows with length \\
+\hline
+\end{tabular}
+\end{table}
+
+Unlike Phase 1's ten-cycle rolling summaries, a window model receives the
+ordered sensor values and can learn interactions between trends, transients,
+and delayed effects.  Reported windows vary by task, and there is no
+universally optimal length: short windows miss slow degradation while long
+windows increase padding, computation, and overfitting.  These observations
+motivate a controlled comparison of recurrent, convolutional, attention, and
+hybrid representations on the same engine split.

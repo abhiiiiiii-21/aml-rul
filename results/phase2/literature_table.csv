@@ -1,0 +1,11 @@
+key,model,subset,window,rul_cap,regularization,reported_rmse,limitation
+saxena_2008_damage_prognosis,dataset description,FD001--FD004,n/a,n/a,n/a,n/a,simulation data may not represent every field failure mode
+hochreiter_1997_lstm,LSTM,n/a,n/a,n/a,gradient-based training,n/a,not an RUL study and requires sequence data
+cho_2014_gru,GRU,n/a,n/a,n/a,n/a,n/a,not an RUL study and recurrent memory can still be computationally expensive
+vaswani_2017_transformer,Transformer,n/a,n/a,n/a,dropout and label smoothing,n/a,attention cost grows with sequence length
+bai_2018_tcn,temporal convolutional network,n/a,n/a,n/a,weight normalization and dropout,n/a,benchmark is not C-MAPSS and receptive field is architecture-dependent
+babu_2016_dcnn,deep CNN,FD001--FD004,n/a,n/a,n/a,n/a,convolutional features depend on the selected input representation
+li_2018_dcnn,deep CNN,FD001--FD004,n/a,n/a,n/a,n/a,performance is sensitive to preprocessing and operating-condition coverage
+zheng_2017_lstm,LSTM,FD001--FD004,n/a,125,n/a,n/a,early-life target capping can discard high-RUL information
+li_2022_attention,attention-based CNN-LSTM,FD001--FD004,n/a,n/a,n/a,n/a,attention adds parameters on a small engine population
+ince_2022_autoencoder,autoencoder-regression,FD001--FD004,n/a,n/a,n/a,n/a,representation quality depends on the unsupervised objective
