@@ -1,0 +1,33 @@
+\section{Dataset and Sequence Preprocessing}
+\label{sec:preprocessing}
+
+We used the NASA C-MAPSS FD001 data.  Each observation contains an engine
+identifier, cycle, three operating settings, and 21 sensor measurements.
+Seven constant or near-constant columns were removed, leaving the 14 sensors
+used by the sequence models.  The training RUL target was
+\[
+y_{i,t}=\max_{u \in i}(u)-t,
+\]
+where $i$ denotes an engine and $t$ its current cycle.  The 100 validation
+cutoffs were kept fixed and the split was performed by engine: 80 engines
+were used for fitting and 20 for validation.  Consequently, no window
+contained observations from both partitions.
+
+The scaler was fitted only on observations from the 80 training engines.
+For sensor $j$, the transformed value was
+$z_{i,t,j}=(x_{i,t,j}-\mu_j)/\sigma_j$.  At cycle $t$, a window of length $w$
+was constructed as
+\[
+X_{i,t}=[z_{i,t-w+1},\ldots,z_{i,t}],
+\]
+using only observations at or before $t$.  If fewer than $w$ observations
+were available, the first observed vector was repeated on the left.  Thus
+short test engines remain usable without look-ahead or deletion.  A cap can
+be applied to training targets as $\tilde y=\min(y,c)$, but the default
+pipeline leaves targets uncapped and every evaluation uses the true RUL.
+
+Models were evaluated in the exact order of the 100 fixed validation points.
+We reported mean absolute error (MAE) and root mean squared error (RMSE) in
+cycles, together with early-life ($y>125$) and late-life ($y\leq125$)
+breakdowns.  Test windows were generated only at each engine's final
+observed cycle; their labels were not used during model development.

@@ -29,8 +29,19 @@ def fit_scaler(train_df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
     return mean, std
 
 
+def cap_rul(y: np.ndarray, cap: float) -> np.ndarray:
+    """Return training targets capped at ``cap``; evaluation always uses true RUL."""
+    if cap < 0:
+        raise ValueError("cap must be non-negative")
+    return np.minimum(np.asarray(y), cap)
+
+
 def _engine_windows(values: np.ndarray, window: int) -> np.ndarray:
     """All windows of one engine, one per cycle, left-padded. Shape (T, window, F)."""
+    if window < 1:
+        raise ValueError("window must be at least 1")
+    if len(values) == 0:
+        return np.empty((0, window, values.shape[1]), dtype=values.dtype)
     padded = np.concatenate([np.repeat(values[:1], window - 1, axis=0), values])
     windows = sliding_window_view(padded, window, axis=0)  # (T, F, window)
     return windows.transpose(0, 2, 1)
@@ -50,7 +61,13 @@ def make_windows(
       y    float32 RUL array (N,), or None when `df` has no `rul` column
       keys dataframe of engine_id and cycle, row-aligned with X
     """
+    if window < 1:
+        raise ValueError("window must be at least 1")
+    if not isinstance(scaler, tuple) or len(scaler) != 2:
+        raise ValueError("scaler must be the (mean, std) tuple returned by fit_scaler")
     mean, std = scaler
+    if mean.shape != (len(FEATURES),) or std.shape != (len(FEATURES),):
+        raise ValueError(f"scaler must contain {len(FEATURES)} sensor values")
     df = df.sort_values(["engine_id", "cycle"])
     xs, ys, keys = [], [], []
     for engine_id, g in df.groupby("engine_id", sort=True):
@@ -61,13 +78,17 @@ def make_windows(
         keys.append(g[["engine_id", "cycle"]])
         if "rul" in g:
             ys.append(g["rul"].to_numpy(dtype=np.float32))
+    if not xs:
+        raise ValueError("df must contain at least one observation")
     X = np.concatenate(xs)
     keys = pd.concat(keys, ignore_index=True)
     y = np.concatenate(ys) if ys else None
 
     if points is not None:
         keys["_pos"] = np.arange(len(keys))
-        order = points[["engine_id", "cycle"]].merge(keys, on=["engine_id", "cycle"], how="left")
+        order = points[["engine_id", "cycle"]].merge(
+            keys, on=["engine_id", "cycle"], how="left", sort=False
+        )
         if order["_pos"].isna().any():
             raise ValueError("some requested points are not in the dataframe")
         pos = order["_pos"].to_numpy(dtype=int)
