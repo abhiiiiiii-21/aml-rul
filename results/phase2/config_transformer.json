@@ -1,0 +1,39 @@
+{
+  "model": "transformer_v1",
+  "kind": "transformer",
+  "kwargs": {
+    "d_model": 32,
+    "heads": 4,
+    "layers": 3,
+    "dim_ff": 64,
+    "dropout": 0.1,
+    "pos": "sinusoidal",
+    "pool": "mean"
+  },
+  "window": 30,
+  "seed": 42,
+  "optimizer": "AdamW",
+  "lr": 0.001,
+  "weight_decay": 0.0001,
+  "batch_size": 256,
+  "grad_clip": 1.0,
+  "loss": "MSE on RUL/100",
+  "max_epochs": 60,
+  "patience": 8,
+  "restore_best": true,
+  "epochs_run": 21,
+  "best_epoch": 13,
+  "best_val_window_mae": 27.06998062133789,
+  "n_params": 26209,
+  "val_points": {
+    "mae": 20.588996493816374,
+    "rmse": 34.791651383688716,
+    "early_mae": 41.103368585759945,
+    "late_mae": 14.802891544806652
+  },
+  "seeds_reported": [
+    42,
+    43,
+    44
+  ]
+}
