@@ -1,0 +1,38 @@
+% IEEE Conference Paper — Remaining Useful Life Prediction
+% Phase 1 (ML) + Phase 2 (DL) Combined Report
+\documentclass[conference]{IEEEtran}
+
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{cite}
+\usepackage{multirow}
+
+\graphicspath{{../results/phase2/figures/}}
+
+\title{Remaining Useful Life Prediction of Aircraft Engines\\Using Machine Learning and Deep Learning on C-MAPSS FD001}
+
+\author{
+  \IEEEauthorblockN{Yogesh Modi, Abhishek Kumar Patel, Kapish Rohilla, Vikash Kumar, Prateek Shakya}
+  \IEEEauthorblockA{Department of Computer Science\\University Course Project — Applied Machine Learning / Deep Learning}
+}
+
+\begin{document}
+\maketitle
+
+\input{sections/abstract}
+\input{sections/introduction}
+\input{sections/literature_review}
+\input{sections/dataset_preprocessing}
+\input{sections/recurrent_models}
+\input{sections/cnn_transformer}
+\input{sections/hybrid}
+\input{sections/ablations}
+\input{sections/results}
+\input{sections/conclusion}
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}

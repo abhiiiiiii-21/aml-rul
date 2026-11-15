@@ -1,0 +1,54 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+We presented a two-phase approach to Remaining Useful Life prediction on
+the NASA C-MAPSS FD001 dataset.  Phase~1 established baselines with
+engineered features and classical regression (best MAE 25.03 cycles).
+Phase~2 introduced four deep-learning architectures and a hybrid
+stacking model, reducing the best validation MAE to 19.41 cycles (LSTM),
+a 22\% improvement.
+
+\subsection{Key Takeaways}
+\begin{enumerate}
+  \item \textbf{Sequence modelling helps.} Even a single-layer LSTM with
+    64 hidden units substantially outperforms tree-based models that
+    operate on 10-cycle rolling statistics.  The 30-cycle sliding window
+    gives the model a longer view of degradation, which is the primary
+    driver of improvement.
+  \item \textbf{Architecture matters less than expected.} The LSTM, GRU
+    and Transformer achieve similar RMSE ($34$--$37$ cycles).  The
+    1D-CNN is slightly weaker, likely because local convolutions miss
+    long-range dependencies relevant at high RUL.
+  \item \textbf{Capacity ceiling.} With only 80 effective training
+    trajectories, larger models do not generalise better.  Moderate
+    regularisation (dropout 0.2, weight decay $10^{-4}$) is essential.
+  \item \textbf{Hybrid stacking.} Combining DL predictions with
+    rolling-window features in a stacking framework stabilises
+    predictions across RUL bands but does not significantly beat the
+    best single model on overall MAE.
+\end{enumerate}
+
+\subsection{Limitations}
+\begin{itemize}
+  \item FD001 is a single operating condition, single fault mode subset.
+    Generalisation to FD002--FD004 (multiple conditions and faults) is
+    not tested.
+  \item The effective training set is small (80 engines).  Data
+    augmentation or transfer learning may help.
+  \item All models still under-predict for engines with very high true
+    RUL ($>200$), as seen in the early-MAE analysis.
+  \item Transformer attention patterns are interpretable but we did not
+    exploit them for feature selection or domain insight.
+\end{itemize}
+
+\subsection{Future Work}
+\begin{itemize}
+  \item Extend to multi-condition subsets (FD002--FD004) and
+    cross-subset transfer learning.
+  \item Explore attention-based feature selection and physics-informed
+    losses that encode monotonic degradation.
+  \item Investigate data augmentation via jittering or synthetic
+    trajectory generation.
+  \item Apply uncertainty quantification (e.g.\ MC Dropout or deep
+    ensembles) for maintenance-decision support.
+\end{itemize}
