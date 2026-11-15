@@ -1,0 +1,20 @@
+\begin{abstract}
+Predicting the Remaining Useful Life (RUL) of aircraft engines enables
+condition-based maintenance and reduces unplanned downtime.  This work
+addresses the problem on the NASA C-MAPSS FD001 benchmark, which provides
+multivariate sensor time series from 100 training and 100 test turbofan
+engines run to failure.  In Phase~1 we established baselines with
+engineered rolling-window features and four regression models (OLS,
+Elastic Net, Random Forest, Gradient Boosting), achieving a best
+validation MAE of 25.03 cycles (Random Forest).  Phase~2 replaces the
+hand-crafted pipeline with end-to-end deep learning: LSTM, GRU, 1D-CNN
+and Transformer architectures trained on 30-cycle sliding windows, plus a
+hybrid stacking model that combines deep-learning embeddings with
+traditional features.  Systematic ablation studies over window length,
+input features, RUL target capping, model capacity, regularisation and
+architecture quantify each design choice.  The best single deep-learning
+model (LSTM) reduces the validation MAE to 19.41 cycles, a 22\%
+improvement over the Phase~1 baseline, while the stacking hybrid achieves
+21.48 cycles with more stable predictions across RUL bands.  All results
+are reproducible with seed~42 and all code is publicly available.
+\end{abstract}

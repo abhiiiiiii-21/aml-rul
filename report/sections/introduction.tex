@@ -1,0 +1,69 @@
+\section{Introduction}
+\label{sec:introduction}
+
+Remaining Useful Life (RUL) prediction estimates how many more operating
+cycles a machine can sustain before failure.  Accurate RUL estimates
+enable condition-based maintenance, reducing both unplanned failures and
+unnecessary preventive replacements~\cite{saxena_2008_damage_prognosis}.
+
+We study the NASA Commercial Modular Aero-Propulsion System Simulation
+(C-MAPSS) FD001 dataset, a widely used benchmark comprising 100 training
+and 100 test turbofan engines.  Each engine is monitored by 21 sensors
+and 3 operational settings over its full run-to-failure trajectory.
+After removing 7 constant or near-constant sensors, 14 informative
+channels remain.
+
+\subsection{Phase 1 Recap}
+In Phase~1 we constructed hand-crafted rolling-window features (mean,
+standard deviation and slope over the most recent 10 cycles) for each
+sensor channel, yielding 57 features per observation.  Four regression
+models were trained on 80 engines and evaluated on 100 fixed validation
+points from 20 held-out engines:
+
+\begin{table}[h]
+\centering
+\caption{Phase 1 validation results (100 fixed points)}
+\label{tab:phase1_results}
+\begin{tabular}{lcc}
+\toprule
+Model & MAE & RMSE \\
+\midrule
+OLS & 32.86 & 42.92 \\
+Elastic Net & 31.66 & 41.77 \\
+Random Forest & 25.03 & 40.17 \\
+Gradient Boosting & 26.12 & 40.17 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Key weaknesses identified in Phase~1: (a) systematic under-prediction
+for engines with true RUL above 200 cycles (mean error approximately
+$-120$ cycles for linear models), (b) the 10-cycle rolling window
+captures only very recent sensor behaviour, and (c) RMSE substantially
+exceeds MAE, indicating a few large errors dominate.
+
+\subsection{Phase 2 Contributions}
+Phase~2 addresses these weaknesses with four contributions:
+\begin{enumerate}
+  \item \textbf{Sequence models.} LSTM and GRU networks learn temporal
+    patterns directly from 30-cycle sliding windows, removing the need
+    for hand-crafted features.
+  \item \textbf{Alternative architectures.} A 1D-CNN and a Transformer
+    encoder provide complementary inductive biases (local convolution
+    versus global self-attention).
+  \item \textbf{Hybrid stacking.} A second-stage Random Forest combines
+    deep-learning predictions with traditional rolling features in an
+    out-of-fold stacking framework.
+  \item \textbf{Ablation studies.} Seven controlled experiments quantify
+    the impact of window length, input features, RUL capping, model
+    capacity, regularisation, architecture choice and hybrid components.
+\end{enumerate}
+
+The rest of this paper is organised as follows.
+Section~\ref{sec:literature} reviews related work.
+Section~\ref{sec:dataset} describes the dataset and preprocessing.
+Sections~\ref{sec:recurrent}--\ref{sec:hybrid} present the four model
+families.  Section~\ref{sec:ablations} reports the ablation studies.
+Section~\ref{sec:results} gives the final evaluation on both validation
+and held-out test sets with bootstrap confidence intervals.
+Section~\ref{sec:conclusion} concludes.
