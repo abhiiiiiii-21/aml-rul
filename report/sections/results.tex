@@ -32,47 +32,50 @@ Phase & Model & \multicolumn{2}{c}{Validation (100 pts)} & \multicolumn{2}{c}{Te
 \end{table}
 
 \subsection{Key Findings}
-On the validation set, the single-layer LSTM achieves the lowest MAE of
-19.41 cycles, improving upon the best Phase~1 baseline (Random Forest, 25.03 cycles)
-by 22.5\%.  The Transformer follows closely at 20.59 cycles.
-On the 100 held-out test engines, \texttt{lstm\_v1} achieves the overall
-lowest MAE of 16.10 cycles, while the simple blending hybrid
-(\texttt{hybrid\_avg\_v1}) achieves the lowest RMSE of 22.96 cycles.
-The stacking hybrid (\texttt{hybrid\_v1}) achieves 17.07 cycles MAE and
-24.13 cycles RMSE, confirming robust generalization across both datasets.
+% Source: results/phase2/final_results.csv
+On the validation points the single-layer LSTM has the lowest MAE (19.41 cycles), 22.5\% below the best Phase~1 model (Random Forest, 25.03).  The Transformer (20.59), the hybrids (21.48 and 21.50) and the GRU (23.18) follow, and the CNN (24.32) is only 0.7 cycles better than Random Forest.  On the 100 test engines the LSTM is again best (16.10), followed by the simple hybrid average (16.50) and the stacking hybrid (17.07).  The rankings agree on the winner but not elsewhere: on test, the GRU (19.99) and the CNN (20.25) are worse than both tree models (18.54 and 18.95) and the Transformer (18.57) is level with them.  Phase~2 models are therefore not uniformly better than Phase~1.  The saved LSTM is the seed-42 run; across seeds 42--44 its validation MAE is $20.14\pm1.46$ (Section~\ref{sec:recurrent}).
 
 \subsection{Bootstrap Confidence Intervals}
-We compute 95\% bootstrap confidence intervals (2,000 resamples, seed 42)
-on test MAE:
+% Source: results/phase2/test_bootstrap.csv
+We computed 95\% bootstrap intervals for the test MAE (2,000 resamples of the 100 engines, seed 42).  The best Phase~1 model (Random Forest) and the best single deep model (LSTM) were chosen on the validation points, not on the test set.
 \begin{itemize}
-  \item Best Phase~1 (Gradient Boosting): 18.54 cycles, 95\% CI $[15.40, 22.11]$.
-  \item Best Phase~2 DL (\texttt{lstm\_v1}): 16.10 cycles, 95\% CI $[12.79, 19.49]$.
-  \item Hybrid Stacking (\texttt{hybrid\_v1}): 17.07 cycles, 95\% CI $[13.85, 20.55]$.
-  \item Hybrid Average (\texttt{hybrid\_avg\_v1}): 16.50 cycles, 95\% CI $[13.31, 19.73]$.
+  \item Random Forest: 18.95 cycles, 95\% CI $[15.65, 22.73]$.
+  \item LSTM (\texttt{lstm\_v1}): 16.10 cycles, 95\% CI $[12.79, 19.49]$.
+  \item Hybrid stacking (\texttt{hybrid\_v1}): 17.07 cycles, 95\% CI $[13.85, 20.55]$.
+  \item Hybrid average (\texttt{hybrid\_avg\_v1}): 16.50 cycles, 95\% CI $[13.31, 19.73]$.
 \end{itemize}
-A paired bootstrap hypothesis test on test MAE between \texttt{lstm\_v1} and
-Gradient Boosting yields a mean error reduction of 2.41 cycles
-(95\% CI $[-0.94, 5.63]$).
+A paired bootstrap of the MAE difference gives 2.82 cycles in favour of the LSTM over Random Forest (95\% CI $[-0.14, 5.84]$), 1.93 for the stacking hybrid over Random Forest ($[-0.59, 4.52]$) and $-1.01$ for the hybrid against the LSTM ($[-3.17, 1.16]$).  Every interval contains 0, so with 100 test engines we cannot claim that the deep or hybrid models are significantly better than Random Forest, or the hybrid better or worse than the LSTM.
 
 \subsection{NASA Scoring Function}
-Evaluating the asymmetric NASA scoring function ($S$) on the test set penalizes
-late overpredictions exponentially.  The stacking hybrid (\texttt{hybrid\_v1})
-achieves the lowest NASA score of all models ($S = 4312$), followed by
-Gradient Boosting ($S = 4813$), Transformer ($S = 4999$), Elastic Net ($S = 5620$),
-Random Forest ($S = 6048$), and \texttt{lstm\_v1} ($S = 14308$).
-This proves that the meta-learning Random Forest regularizes extreme predictions
-near end-of-life, substantially reducing dangerous late maintenance calls.
+% Source: notebooks/phase2/07_final_evaluation.ipynb (NASA score cell), results/phase2/final_results.csv
+The asymmetric NASA score (the C-MAPSS challenge metric) penalises late predictions (predicted RUL above the true RUL) more than early ones.  On the test set the stacking hybrid has the lowest score ($S=4312$), followed by Gradient Boosting (4813), the Transformer (4999), Elastic Net (5620) and Random Forest (6048); the LSTM scores 14\,308 because of a few large late errors.  The hybrid still over-predicts 84.3\% of the late test points (true RUL $\le125$), so the score reflects small over-predictions rather than a general safety advantage, and we do not read it as evidence that the hybrid avoids late predictions.
 
 \subsection{Error by Degradation Regime}
-Breaking down test errors into four RUL regimes demonstrates where deep
-learning delivers its primary gains:
-\begin{itemize}
-  \item \textbf{Near Failure (0--50 cycles):} All deep learning models
-    achieve MAE $< 10$ cycles, providing high precision for imminent maintenance.
-  \item \textbf{Mid-Life (50--125 cycles):} MAE averages $\approx 14$ cycles,
-    with \texttt{lstm\_v1} and the hybrid models outperforming tree baselines.
-  \item \textbf{Early-Life ($>200$ cycles):} While Phase~1 linear models had
-    mean errors of $-120$ cycles, deep sequence models reduce this bias
-    substantially, though healthy baseline operation remains fundamentally
-    challenging to extrapolate before physical wear initiates.
-\end{itemize}
+% Source: results/phase2/final_band_errors.csv
+Table~\ref{tab:bands} gives the test MAE in three regimes.  Near failure (true RUL below 50, 30 engines) all deep and hybrid models reach 3.6 to 5.9 cycles against 9.0 and 9.7 for Random Forest and Gradient Boosting.  In the mid-life regime (50--125, 59 engines) all models lie between 22.0 and 29.1 cycles and the LSTM (22.8) is not clearly better than the tree models (23.0 and 23.5).
+
+% Source: results/phase2/final_band_errors.csv
+\begin{table}[t]
+\centering
+\caption{Test MAE (cycles) by true-RUL regime. No test engine has a true RUL above 200.}
+\label{tab:bands}
+\footnotesize
+\begin{tabular}{lccc}
+\toprule
+Model & 0--50 (30) & 50--125 (59) & 125--200 (11)\\
+\midrule
+Random Forest & 9.0 & 23.5 & 21.4\\
+Gradient Boosting & 9.7 & 23.0 & 18.7\\
+LSTM & 3.6 & 22.8 & 14.5\\
+GRU & 3.9 & 29.1 & 15.1\\
+1D-CNN & 5.0 & 29.1 & 14.7\\
+Transformer & 4.5 & 25.1 & 22.2\\
+Hybrid stacking & 3.8 & 24.6 & 12.9\\
+Hybrid average & 5.9 & 22.0 & 16.1\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{The High-RUL Gap}
+% Source: results/phase2/final_band_errors.csv (validation rows)
+The Phase~1 weakness, underprediction of engines with a true RUL above 200, is not resolved.  The test set has no such engine, so we use the 5 validation points: the mean error is $-124.7$ (LSTM), $-111.9$ (Transformer), $-116.3$ (hybrid) and $-123.3$ cycles (Random Forest).  Every model still underpredicts healthy engines by more than 110 cycles.  This is consistent with the limited information that a 30-cycle window of a healthy engine contains, rather than with the choice of architecture.

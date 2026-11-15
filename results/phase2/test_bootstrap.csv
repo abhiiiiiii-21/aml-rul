@@ -1,6 +1,8 @@
-model,test_mae,ci_lower,ci_upper
-gradient_boosting,18.54,15.4,22.11
-lstm_v1,16.1,12.79,19.49
-hybrid_v1,17.07,13.85,20.55
-hybrid_avg_v1,16.5,13.31,19.73
-paired_diff_lstm_v1_vs_gradient_boosting,2.41,-0.94,5.63
+model,test_mae,ci_lower,ci_upper,significant_at_95
+random_forest,18.95,15.65,22.73,
+lstm_v1,16.1,12.79,19.49,
+hybrid_v1,17.07,13.85,20.55,
+hybrid_avg_v1,16.5,13.31,19.73,
+paired_diff_lstm_v1_vs_random_forest,2.82,-0.14,5.84,0.0
+paired_diff_hybrid_v1_vs_random_forest,1.93,-0.59,4.52,0.0
+paired_diff_hybrid_v1_vs_lstm_v1,-1.01,-3.17,1.16,0.0
