@@ -16,10 +16,10 @@ cycles.  Global average pooling $z=\frac{1}{T}\sum_{t}h_t$ then summarises the w
 
 \subsection{Transformer encoder}
 The Transformer replaces recurrence by self-attention~\cite{vaswani_2017_transformer}.  A linear layer projects each $x_t$ to $d_{\mathrm{model}}=32$ and a positional encoding is added, because attention alone ignores order:
-\begin{equation}
-\mathrm{PE}(t,2i)=\sin\!\big(t/10000^{2i/d_{\mathrm{model}}}\big),\quad
-\mathrm{PE}(t,2i{+}1)=\cos\!\big(t/10000^{2i/d_{\mathrm{model}}}\big).
-\end{equation}
+\begin{align}
+\mathrm{PE}(t,2i)&=\sin\!\big(t/10000^{2i/d_{\mathrm{model}}}\big),\\
+\mathrm{PE}(t,2i{+}1)&=\cos\!\big(t/10000^{2i/d_{\mathrm{model}}}\big).
+\end{align}
 With $Q$, $K$, $V$ the query, key and value projections of the sequence and $d_k$ the key size, one head computes
 \begin{equation}
 \mathrm{Attention}(Q,K,V)=\mathrm{softmax}\!\Big(\frac{QK^\top}{\sqrt{d_k}}\Big)V,
@@ -41,6 +41,7 @@ Table~\ref{tab:cnn_tr} compares the models on the 100 fixed validation points.  
 \caption{Validation results on the 100 fixed points (cycles). MAE and RMSE are mean $\pm$ standard deviation over seeds 42--44 (single run for Random Forest); early and late MAE are for the seed-42 model. Cost is measured on one CPU thread.}
 \label{tab:cnn_tr}
 \footnotesize
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{lccccrr}
 \toprule
 Model & MAE & RMSE & Early & Late & Params & s/epoch\\
@@ -51,7 +52,7 @@ GRU & $22.98\pm0.49$ & $36.61\pm0.90$ & 43.34 & 17.49 & 40\,385 & 1.15\\
 CNN & $24.38\pm0.14$ & $36.86\pm0.17$ & 41.33 & 19.53 & 25\,153 & 2.10\\
 Transformer & $22.80\pm2.28$ & $36.97\pm2.60$ & 41.10 & 14.80 & 26\,209 & 3.78\\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table}
 
 \begin{figure*}[t]

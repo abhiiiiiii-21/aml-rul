@@ -33,6 +33,7 @@ Six variants were defined before any experiment (Table~\ref{tab:hybrid}). Select
 \caption{Validation results (cycles). Window MAE: all windows of the 20 validation engines (selection score), mean $\pm$ standard deviation over seeds 42--44. Points: the 100 fixed points, seed 42.}
 \label{tab:hybrid}
 \footnotesize
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{lccc}
 \toprule
 Model & Window MAE & Points MAE & Points RMSE\\
@@ -48,7 +49,7 @@ B-fold & 26.92 $\pm$ 0.23 & 23.03 & 37.00\\
 LSTM, fold mean & 28.11 $\pm$ 0.52 & 21.75 & 36.22\\
 Random Forest (Phase 1) & 27.77 $\pm$ 0.06 & 25.03 & 40.17\\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table}
 
 \begin{table}[t]
@@ -56,6 +57,7 @@ Random Forest (Phase 1) & 27.77 $\pm$ 0.06 & 25.03 & 40.17\\
 \caption{Component ablation: the same Random Forest on each feature group (seed 42, LSTM estimate only).}
 \label{tab:hybrid_components}
 \footnotesize
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{lcccc}
 \toprule
 Features & Count & Window MAE & Points MAE & Points RMSE\\
@@ -64,7 +66,7 @@ DL estimate only & 1 & 28.72 & 24.93 & 38.10\\
 Rolling only & 57 & 27.71 & 25.03 & 40.17\\
 Both & 58 & 26.12 & 23.08 & 35.40\\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table}
 
 \subsection{Results}

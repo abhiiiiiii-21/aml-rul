@@ -30,6 +30,7 @@ the accessible report did not state the item unambiguously.}
 \label{tab:literature}
 \centering
 \scriptsize
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{p{0.25\columnwidth}p{0.18\columnwidth}p{0.15\columnwidth}p{0.28\columnwidth}}
 \hline
 Source & Model & Subset & Limitation \\
@@ -40,7 +41,7 @@ Zheng et al. & LSTM & FD001--FD004 & Capping discards high-RUL detail \\
 Bai et al. & TCN & n/a & Receptive-field dependent \\
 Vaswani et al. & Transformer & n/a & Attention cost grows with length \\
 \hline
-\end{tabular}
+\end{tabular}}
 \end{table}
 
 Unlike Phase 1's ten-cycle rolling summaries, a window model receives the

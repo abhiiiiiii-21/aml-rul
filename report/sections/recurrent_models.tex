@@ -22,8 +22,10 @@ where $i_t$, $f_t$, $o_t$ are the input, forget and output gates, $g_t$ is the c
 
 \textbf{GRU.}  The gated recurrent unit (GRU) merges cell and hidden state and uses two gates~\cite{cho_2014_gru}:
 \begin{align}
-z_t&=\sigma(W_z[x_t,h_{t-1}]+b_z), & r_t&=\sigma(W_r[x_t,h_{t-1}]+b_r),\\
-\tilde h_t&=\tanh(W_h[x_t,r_t\odot h_{t-1}]+b_h), & h_t&=(1-z_t)\odot h_{t-1}+z_t\odot\tilde h_t,
+z_t&=\sigma(W_z[x_t,h_{t-1}]+b_z),\\
+r_t&=\sigma(W_r[x_t,h_{t-1}]+b_r),\\
+\tilde h_t&=\tanh(W_h[x_t,r_t\odot h_{t-1}]+b_h),\\
+h_t&=(1-z_t)\odot h_{t-1}+z_t\odot\tilde h_t,
 \end{align}
 with update gate $z_t$ and reset gate $r_t$.  A GRU has three weight blocks per layer instead of four, hence fewer parameters.
 
@@ -92,6 +94,7 @@ Table~\ref{tab:final} gives the scores of the chosen models on the 100 fixed val
 \caption{Chosen models on the 100 validation points. Mean $\pm$ standard deviation over seeds 42, 43, 44; early and late MAE are for the saved seed 42 model. The Random Forest row is the Phase~1 result.}
 \label{tab:final}
 \footnotesize
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{lcccc}
 \toprule
 Model & MAE & RMSE & Early MAE & Late MAE\\
@@ -100,7 +103,7 @@ LSTM (1 layer, 64) & $20.14\pm1.46$ & $33.18\pm2.46$ & 43.73 & 12.55\\
 GRU (2 layers, 64) & $22.98\pm0.49$ & $36.61\pm0.90$ & 43.34 & 17.49\\
 Random Forest (Phase 1) & 25.03 & 40.17 & 49.33 & 18.17\\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table}
 
 \begin{figure}[t]

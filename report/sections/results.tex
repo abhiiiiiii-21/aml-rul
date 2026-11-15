@@ -10,6 +10,7 @@ test engines.
 \centering
 \caption{Validation and test performance across all models (cycles, lower is better)}
 \label{tab:final_results}
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{llcccc}
 \toprule
 Phase & Model & \multicolumn{2}{c}{Validation (100 pts)} & \multicolumn{2}{c}{Test (100 engines)} \\
@@ -28,7 +29,7 @@ Phase & Model & \multicolumn{2}{c}{Validation (100 pts)} & \multicolumn{2}{c}{Te
 2 & Hybrid Stacking (\texttt{hybrid\_v1})  & 21.48 & \textbf{34.38} & 17.07 & 24.13 \\
 2 & Hybrid Average (\texttt{hybrid\_avg\_v1}) & 21.50 & 35.83 & 16.50 & \textbf{22.96} \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table}
 
 \subsection{Key Findings}
@@ -48,7 +49,11 @@ A paired bootstrap of the MAE difference gives 2.82 cycles in favour of the LSTM
 
 \subsection{NASA Scoring Function}
 % Source: notebooks/phase2/07_final_evaluation.ipynb (NASA score cell), results/phase2/final_results.csv
-The asymmetric NASA score (the C-MAPSS challenge metric) penalises late predictions (predicted RUL above the true RUL) more than early ones.  On the test set the stacking hybrid has the lowest score ($S=4312$), followed by Gradient Boosting (4813), the Transformer (4999), Elastic Net (5620) and Random Forest (6048); the LSTM scores 14\,308 because of a few large late errors.  The hybrid still over-predicts 84.3\% of the late test points (true RUL $\le125$), so the score reflects small over-predictions rather than a general safety advantage, and we do not read it as evidence that the hybrid avoids late predictions.
+The asymmetric NASA score~\cite{saxena_2008_damage_prognosis} penalises late predictions (predicted RUL above the true RUL) more than early ones.  With $d_i=\hat y_i-y_i$ for the $n$ test engines,
+\begin{equation}
+S=\sum_{i=1}^{n}\begin{cases}e^{-d_i/13}-1, & d_i<0,\\ e^{d_i/10}-1, & d_i\ge 0,\end{cases}
+\end{equation}
+so a late error grows faster than an early error of the same size, and a single large late error can dominate the sum.  On the test set the stacking hybrid has the lowest score ($S=4312$), followed by Gradient Boosting (4813), the Transformer (4999), Elastic Net (5620) and Random Forest (6048); the LSTM scores 14\,308 because of a few large late errors.  The hybrid still over-predicts 84.3\% of the late test points (true RUL $\le125$), so the score reflects small over-predictions rather than a general safety advantage, and we do not read it as evidence that the hybrid avoids late predictions.
 
 \subsection{Error by Degradation Regime}
 % Source: results/phase2/final_band_errors.csv
