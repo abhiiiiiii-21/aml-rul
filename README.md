@@ -1,138 +1,133 @@
-# Remaining Useful Life Prediction — NASA C-MAPSS FD001 (Phase 1 & Phase 2)
+# Remaining Useful Life Prediction on NASA C-MAPSS FD001
 
-Predict the **Remaining Useful Life (RUL)** of an aircraft engine: how many more operating cycles it can safely run before it fails, using multivariate sensor time series.
+Predicting how many operating cycles a turbofan engine can still run before it fails, from the sensor readings seen so far. The project compares classical machine learning on hand-crafted rolling features (Phase 1) with deep sequence models and a hybrid stacking model (Phase 2), all evaluated under one strict protocol.
 
-- **Phase 1 (Machine Learning):** Engineered rolling statistics (mean, std, slope over window 10) evaluated with OLS, Elastic Net, Random Forest, and Gradient Boosting.
-- **Phase 2 (Deep Learning):** End-to-end deep sequence architectures (LSTM, GRU, 1D-CNN, Transformer), out-of-fold Hybrid Stacking, systematic ablation studies, and final cross-phase evaluation.
+| | |
+| --- | --- |
+| **Task** | Regression of RUL in cycles, no cap on the target |
+| **Data** | NASA C-MAPSS FD001: 100 training and 100 test engines, 14 informative sensors |
+| **Models** | OLS, Elastic Net, Random Forest, Gradient Boosting; LSTM, GRU, 1D-CNN, Transformer; hybrid stacking |
+| **Metrics** | MAE and RMSE in cycles, early/late split, NASA score, bootstrap confidence intervals |
+| **Stack** | Python 3.12+, PyTorch, scikit-learn, pandas, Jupyter |
 
----
+## Results
 
-## Data (`data/`)
+MAE and RMSE in cycles (lower is better). Validation is the same 100 fixed points for every model; test is the last observed cycle of each of the 100 test engines, scored once. Phase 2 validation and test numbers are for the seed-42 models that were saved.
 
-| File | Description | Dimensions |
-| --- | --- | --- |
-| `train_FD001.txt` | 100 engines run to failure under sea-level conditions | 20,631 rows $\times$ 26 cols |
-| `test_FD001.txt` | 100 test engines censored prior to failure | 13,096 rows $\times$ 26 cols |
-| `RUL_FD001.txt` | True RUL ground-truth values at the last observed cycle of test engines | 100 rows |
-| `validation_cutoffs.csv` | 100 fixed validation cutoff points (20 engines $\times$ 5 cycles, seed 42) | 100 rows $\times$ 3 cols |
+| Phase | Model | Val MAE | Val RMSE | Test MAE | Test RMSE |
+| --- | --- | --- | --- | --- | --- |
+| 1 | OLS regression | 32.86 | 42.92 | 24.91 | 31.17 |
+| 1 | Elastic Net | 31.66 | 41.77 | 23.61 | 29.04 |
+| 1 | Random Forest | 25.03 | 40.17 | 18.95 | 25.88 |
+| 1 | Gradient Boosting | 26.12 | 40.17 | 18.54 | 25.33 |
+| 2 | LSTM (1 layer) | 19.41 | 34.45 | 16.10 | 23.66 |
+| 2 | GRU (2 layers) | 23.18 | 36.34 | 19.99 | 28.22 |
+| 2 | 1D-CNN (dilated) | 24.32 | 36.70 | 20.25 | 27.86 |
+| 2 | Transformer (3 layers) | 20.59 | 34.79 | 18.57 | 25.57 |
+| 2 | Hybrid stacking | 21.48 | 34.38 | 17.07 | 24.13 |
+| 2 | Hybrid average | 21.50 | 35.83 | 16.50 | 22.96 |
 
-Each row contains: `engine_id`, `cycle`, 3 operational settings, and 21 sensor channels.
-- 7 uninformative/constant channels removed (`setting_3` and sensors 1, 5, 6, 10, 16, 18, 19).
-- 14 active, calibrated sensors retained for modeling.
+What the results support:
 
----
+- **The single-layer LSTM is the best model.** Validation MAE is 19.41 for the saved model and 20.14 ± 1.46 over three seeds, against 25.03 for the best Phase 1 model (Random Forest). Test MAE is 16.10 against 18.95.
+- **That advantage is not statistically established on the test set.** Choosing the best models on validation, the paired bootstrap 95% interval of the test MAE difference is [-0.14, 5.84] cycles, which includes 0. With 100 engines the intervals are wide.
+- **Phase 2 is not uniformly better than Phase 1.** On the test set the GRU (19.99) and the CNN (20.25) are worse than both tree models, and the Transformer (18.57) is level with them.
+- **The hybrid does not beat the best deep model**, and stacking is no better than a plain average. It improves a tree model: Random Forest on rolling features alone is 25.08 on validation, the stacked hybrid is 21.72 (three seeds). Its low NASA score (4,312) comes with over-prediction of 84% of the late test points, so it is not evidence of safer predictions.
+- **The high-RUL gap is not closed.** Engines with a true RUL above 200 are underpredicted by 110 to 125 cycles by every model (5 validation points; the test set has no such engine).
 
-## Final Performance Matrix (Validation & Held-Out Test)
+Ablations (100-point MAE, three seeds, reference LSTM 20.14 ± 1.46): a window of 10 or 20 cycles is clearly worse (27.60, 23.39) and 30 to 50 cycles are indistinguishable; one recurrent layer is best and extra depth hurts; first-difference channels and target caps (125, 150) are worse; early stopping is the regularizer that matters, while dropout and weight decay are within seed noise. Full tables are in `results/phase2/ablation_summary.csv` and the report.
 
-All models are evaluated on the identical 100 fixed validation points and 100 held-out test engines against true uncapped RUL (cycles, lower is better):
+## Method
 
-| Phase | Model | Family | Val MAE | Val RMSE | Test MAE | Test RMSE | NASA Score ($S$) |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | OLS Linear Regression | Classical Linear | 32.86 | 42.92 | 24.91 | 31.17 | 11,407 |
-| 1 | Elastic Net | Regularized Linear | 31.66 | 41.77 | 23.61 | 29.04 | 5,620 |
-| 1 | Random Forest | Tabular Ensemble | 25.03 | 40.17 | 18.95 | 25.88 | 6,048 |
-| 1 | Gradient Boosting | Tabular Ensemble | 26.12 | 40.17 | 18.54 | 25.33 | 4,813 |
-| **2** | **LSTM (`lstm_v1`)** | **Recurrent** | **19.41** | 34.45 | **16.10** | 23.66 | 14,308 |
-| 2 | GRU (`gru_v1`) | Recurrent | 23.18 | 36.34 | 19.99 | 28.22 | 12,126 |
-| 2 | 1D-CNN (`cnn1d_v1`) | Convolutional | 24.32 | 36.70 | 20.25 | 27.86 | 18,267 |
-| 2 | Transformer (`transformer_v1`) | Self-Attention | 20.59 | 34.79 | 18.57 | 25.57 | 4,999 |
-| **2** | **Hybrid Stacking (`hybrid_v1`)** | **Stacking Ensemble** | 21.48 | **34.38** | 17.07 | 24.13 | **4,312** |
-| 2 | Hybrid Average (`hybrid_avg_v1`) | Simple Blend | 21.50 | 35.83 | 16.50 | **22.96** | 6,026 |
+**Protocol (the same for every model).**
+- Split by engine, never by row: 80 training engines and 20 validation engines.
+- The 100 validation points (20 engines x 5 cycles) are fixed in `data/validation_cutoffs.csv`.
+- Scalers, encoders and models are fitted on the 80 training engines only. Validation engines are used for early stopping and model selection.
+- Windows contain only the current and earlier cycles of one engine (no look-ahead). Evaluation always uses the true, uncapped RUL.
+- The test set is scored once, in notebook 07, and is never used to choose a model.
+- Seed 42 for the main runs; seeds 42, 43, 44 for spread estimates.
 
-### Core Project Insights
-- **Phase 2 Superiority:** The best deep learning model (**LSTM**) reduces validation MAE from 25.03 to **19.41 cycles** (a **22.5% improvement** over Phase 1 Random Forest). On the held-out test set, LSTM reaches **16.10 cycles MAE**.
-- **Hybrid Innovation:** While LSTM achieves the lowest symmetric MAE, the **Hybrid Stacking model (`hybrid_v1`)** achieves the lowest overall **NASA risk score (4,312)** and validation RMSE (**34.38 cycles**), demonstrating superior stability and suppression of dangerous late overpredictions.
-- **Ablation Findings:** 
-  1. *Window length:* Window 30 is the empirical optimum (MAE 19.39 vs 25.40 at W=10).
-  2. *Features:* 14 raw sensors outperform configurations adding operational settings or first-difference channels.
-  3. *Capacity:* A compact 1-layer 64-hidden unit LSTM outperforms deeper multi-layer models on 80 training engine trajectories.
+**Phase 1.** Rolling mean, standard deviation and slope over the last 10 cycles of 14 sensors (57 features) feed OLS, Elastic Net, Random Forest and Gradient Boosting.
 
----
+**Phase 2.**
+- *Sequence models:* 30-cycle windows of the 14 standardised sensors feed an LSTM, a GRU, a dilated 1D-CNN or a small Transformer encoder. Training uses AdamW, MSE on RUL/100, gradient clipping and early stopping on the validation engines.
+- *Hybrid:* out-of-fold RUL estimates from the LSTM and GRU (5 folds by engine, so no training row is predicted by a model that saw its engine) are stacked with the Phase 1 rolling features in a Random Forest. A plain average and a residual variant serve as comparisons.
+- *Ablations:* one factor at a time around the LSTM reference (window, features, target cap, capacity, regularization, architecture, hybrid components).
 
-## Repository Map
+## Repository structure
 
 ```
-aml-rul/
-├── data/                             # NASA C-MAPSS FD001 dataset files (read-only)
-├── src/
-│   ├── load_data.py                  # Data loader and RUL label generation
-│   ├── features.py                   # Phase 1 rolling statistical features (window 10)
-│   ├── evaluation.py                 # Split logic, 100 benchmark points, MAE/RMSE
-│   ├── sequences.py                  # Phase 2 sliding-window generator & standardizer
-│   ├── dl_models.py                  # PyTorch models: LSTM, GRU, 1D-CNN, Transformer
-│   ├── train.py                      # AdamW training loop, early stopping, inference
-│   ├── hybrid.py                     # Out-of-fold stacking pipeline & feature fusion
-│   └── ablation.py                   # Ablation feature helpers & evaluation wrappers
-├── notebooks/                        # Phase 1 exploratory & modeling notebooks (01–05)
-├── notebooks/phase2/                 # Phase 2 deep learning notebooks (01–07)
-│   ├── 01_dl_literature_and_eda.ipynb      # Literature review & sequence EDA
-│   ├── 02_sequence_windows.ipynb            # Sliding window pipeline validation
-│   ├── 03_lstm_gru.ipynb                    # Recurrent sequence models (LSTM & GRU)
-│   ├── 04_cnn_transformer.ipynb            # 1D-CNN & Transformer architectures
-│   ├── 05_hybrid.ipynb                     # Out-of-fold Hybrid ML + DL stacking
-│   ├── 06_ablations.ipynb                  # 7 controlled ablation studies (Vikash)
-│   └── 07_final_evaluation.ipynb           # Consolidated evaluation on val & test (Vikash)
-├── results/
-│   ├── phase1/                       # Phase 1 validation and test prediction CSVs
-│   └── phase2/                       # Phase 2 predictions, ablation tables, models, figures
-│       ├── figures/                  # Publication-ready diagnostic figures (150+ DPI)
-│       ├── models/                   # Saved PyTorch model weights (.pt)
-│       ├── ablation_results.csv      # Individual ablation experiment trials
-│       ├── ablation_summary.csv      # Aggregated ablation statistics across seeds
-│       ├── final_results.csv         # Definitive cross-phase benchmark matrix
-│       └── test_bootstrap.csv        # 95% bootstrap confidence intervals
-├── report/                           # IEEE Conference LaTeX Report
-│   ├── main.tex                      # Master LaTeX document
-│   ├── references.bib                # Verified peer-reviewed bibliography
-│   └── sections/                     # Modular LaTeX section files
-├── docs/
-│   ├── PHASE2_PLAN.md                # Phase 2 architectural roadmap & execution status
-│   ├── presentation_outline.md       # 15-slide presentation guide with speaker notes
-│   ├── VIVA_PREP.md                  # Comprehensive viva voce preparation guide
-│   └── handoff/                      # Formal handoff notes from each team member
-└── tests/                            # Pytest test suite
+data/                 NASA C-MAPSS FD001 files and the 100 fixed validation cutoffs
+src/
+  load_data.py        loading, RUL label, the 14 useful sensors
+  features.py         Phase 1 rolling features
+  evaluation.py       engine split, validation and test points, MAE/RMSE
+  sequences.py        sliding windows and scaler for the deep models
+  dl_models.py        LSTM/GRU, 1D-CNN and Transformer regressors
+  train.py            training loop, early stopping, prediction, save/load
+  rnn_experiments.py  runner used by notebook 03
+  cnn_experiments.py  runner used by notebook 04
+  hybrid.py           out-of-fold stacking pipeline
+  ablation.py         feature variants and cached ablation runner
+tests/                pytest suite (windowing, models, hybrid leakage, ablation helpers)
+notebooks/            Phase 1 notebooks 01-05
+notebooks/phase2/     Phase 2 notebooks 01-07
+results/phase1/       Phase 1 predictions and metrics
+results/phase2/       Phase 2 predictions, configs, weights, tables, figures
+report/               IEEE-format LaTeX report (main.tex, sections/, references.bib)
+Report.pdf, Presentation.pdf   Phase 1 report and slides
 ```
 
----
+## Getting started
 
-## Team & Responsibilities
-
-| Role | Member | Responsibilities | Handoff |
-| --- | --- | --- | --- |
-| 1 | **Prateek Shakya** | Literature review, sequence EDA, windowing pipeline, test suite | [`docs/handoff/01_prateek.md`](docs/handoff/01_prateek.md) |
-| 2 | **Yogesh Modi** | Recurrent models (LSTM & GRU), training loop, regularisation sweeps | [`docs/handoff/02_yogesh.md`](docs/handoff/02_yogesh.md) |
-| 3 | **Abhishek Kumar Patel** | 1D-CNN, Transformer with self-attention, attention interpretability | `notebooks/phase2/04` |
-| 4 | **Kapish Rohilla** | Out-of-fold Hybrid ML + DL stacking, variance analysis | `notebooks/phase2/05` |
-| 5 | **Vikash Kumar** | Ablation studies, final evaluation, integration, report, viva pack | [`docs/handoff/05_vikash.md`](docs/handoff/05_vikash.md) |
-
----
-
-## How to Run & Reproduce
-
-### 1. Environment Setup
 ```bash
-git clone https://github.com/Abhishek76-code/aml-rul.git
+git clone https://github.com/abhiiiiiii-21/aml-rul.git
 cd aml-rul
 python3 -m venv .venv
-source .venv/bin/activate          # On Windows: .venv\Scripts\activate
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
+python -m pytest -q                # unit tests
 ```
 
-### 2. Run Test Suite
-```bash
-pytest -q
-```
+Run the notebooks from inside their folder, in order:
 
-### 3. Run Phase 2 Notebooks
-To execute the notebooks linearly from the command line:
 ```bash
 cd notebooks/phase2
 jupyter nbconvert --to notebook --execute 01_dl_literature_and_eda.ipynb --inplace
 jupyter nbconvert --to notebook --execute 02_sequence_windows.ipynb --inplace
-jupyter nbconvert --to notebook --execute 03_lstm_gru.ipynb --inplace
-jupyter nbconvert --to notebook --execute 04_cnn_transformer.ipynb --inplace
+jupyter nbconvert --to notebook --execute 03_lstm_gru.ipynb --inplace          # about 9 min
+jupyter nbconvert --to notebook --execute 04_cnn_transformer.ipynb --inplace   # about 21 min
 jupyter nbconvert --to notebook --execute 05_hybrid.ipynb --inplace
-jupyter nbconvert --to notebook --execute 06_ablations.ipynb --inplace
-jupyter nbconvert --to notebook --execute 07_final_evaluation.ipynb --inplace
+jupyter nbconvert --to notebook --execute 06_ablations.ipynb --inplace         # about 11 min first run, seconds from the cache
+jupyter nbconvert --to notebook --execute 07_final_evaluation.ipynb --inplace  # seconds
 ```
-All notebooks execute top-to-bottom cleanly in under 15 minutes each.
+
+Timings are from an 8-core laptop with 6 worker processes. Notebook 07 only reads the prediction files written by the earlier notebooks. The trained weights are in `results/phase2/models/`; load them with `train.load_model` and the settings in the matching `config_*.json`.
+
+## Reproducibility
+
+- Training runs on CPU with fixed seeds and reproduces the stored numbers (the ablation notebook checks that its seed-42 runs match the model notebooks).
+- Each result file records its configuration (`config_*.json`).
+- The LaTeX report is in `report/`; build it with a TeX distribution (`pdflatex`/`bibtex` or `latexmk -pdf main.tex` inside `report/`). It was not compiled in the environment used to write it.
+
+## Limitations
+
+- One dataset subset (FD001, one operating condition, one fault mode); FD002-FD004 are not tested.
+- 80 training, 20 validation and 100 test engines: wide confidence intervals; validation scores are slightly optimistic because early stopping and selection used the validation engines.
+- Standard deviations rest on three seeds.
+- Underprediction of healthy engines (true RUL above 200) remains, and the test set cannot measure it.
+
+## Team
+
+| Member | Phase 1 | Phase 2 |
+| --- | --- | --- |
+| Prateek Shakya | Data loading, RUL label, exploration | Literature review, sequence EDA, windowing pipeline and tests |
+| Yogesh Modi | Rolling features | LSTM and GRU, training loop, regularization study |
+| Abhishek Kumar Patel | Tree models | 1D-CNN and Transformer |
+| Kapish Rohilla | Engine split, metrics, linear models | Hybrid stacking model |
+| Vikash Kumar | Final evaluation | Ablations, final evaluation, report integration |
+
+## Data and references
+
+- A. Saxena and K. Goebel, "Turbofan Engine Degradation Simulation Data Set," NASA Ames Prognostics Data Repository, 2008. The data files in `data/` come from this repository.
+- The full bibliography is in `report/references.bib`.

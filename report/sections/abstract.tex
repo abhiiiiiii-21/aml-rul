@@ -1,20 +1,20 @@
 \begin{abstract}
-Predicting the Remaining Useful Life (RUL) of aircraft engines enables
-condition-based maintenance and reduces unplanned downtime.  This work
-addresses the problem on the NASA C-MAPSS FD001 benchmark, which provides
-multivariate sensor time series from 100 training and 100 test turbofan
-engines run to failure.  In Phase~1 we established baselines with
-engineered rolling-window features and four regression models (OLS,
-Elastic Net, Random Forest, Gradient Boosting), achieving a best
-validation MAE of 25.03 cycles (Random Forest).  Phase~2 replaces the
-hand-crafted pipeline with end-to-end deep learning: LSTM, GRU, 1D-CNN
-and Transformer architectures trained on 30-cycle sliding windows, plus a
-hybrid stacking model that combines deep-learning embeddings with
-traditional features.  Systematic ablation studies over window length,
-input features, RUL target capping, model capacity, regularisation and
-architecture quantify each design choice.  The best single deep-learning
-model (LSTM) reduces the validation MAE to 19.41 cycles, a 22\%
-improvement over the Phase~1 baseline, while the stacking hybrid achieves
-21.48 cycles with more stable predictions across RUL bands.  All results
-are reproducible with seed~42 and all code is publicly available.
+Predicting the Remaining Useful Life (RUL) of aircraft engines supports
+condition-based maintenance and reduces unplanned downtime.  We study the
+problem on the NASA C-MAPSS FD001 benchmark, which provides multivariate sensor
+time series from 100 training and 100 test turbofan engines run to failure.
+In Phase~1 we built rolling-window features and four regression models,
+the best of which (Random Forest) reached a validation MAE of 25.03 cycles.
+In Phase~2 we trained LSTM, GRU, 1D-CNN and Transformer models on 30-cycle
+windows, and a hybrid model that stacks out-of-fold sequence-model
+estimates with the rolling features in a Random Forest.  On the 100 fixed
+validation points the best deep model, a single-layer LSTM, reaches an MAE of
+$20.14\pm1.46$ cycles over three seeds (19.41 for the saved model).  On the
+100 held-out test engines it reaches 16.10 against 18.95 for Random Forest,
+but the paired bootstrap interval of the difference, $[-0.14, 5.84]$ cycles,
+includes zero, so we cannot claim a significant improvement.  The hybrid
+does not beat the LSTM, and no model removes the underprediction of
+healthy engines with a true RUL above 200 cycles.  Controlled ablations show that a window of at least 30 cycles, a
+single recurrent layer, early stopping and an uncapped training target matter
+most.  Everything is reproducible with fixed seeds.
 \end{abstract}

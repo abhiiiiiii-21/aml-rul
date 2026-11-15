@@ -1,54 +1,40 @@
 \section{Conclusion}
 \label{sec:conclusion}
 
-We presented a two-phase approach to Remaining Useful Life prediction on
-the NASA C-MAPSS FD001 dataset.  Phase~1 established baselines with
-engineered features and classical regression (best MAE 25.03 cycles).
-Phase~2 introduced four deep-learning architectures and a hybrid
-stacking model, reducing the best validation MAE to 19.41 cycles (LSTM),
-a 22\% improvement.
+We compared hand-crafted-feature regression (Phase~1) with deep sequence
+models and a hybrid stacking model (Phase~2) for RUL prediction on C-MAPSS FD001.
+All models use the same engine split, the same 100 fixed validation points and the true uncapped RUL;
+the test set was scored once.
 
 \subsection{Key Takeaways}
+% Source: results/phase2/final_results.csv, test_bootstrap.csv, ablation_summary.csv
 \begin{enumerate}
-  \item \textbf{Sequence modelling helps.} Even a single-layer LSTM with
-    64 hidden units substantially outperforms tree-based models that
-    operate on 10-cycle rolling statistics.  The 30-cycle sliding window
-    gives the model a longer view of degradation, which is the primary
-    driver of improvement.
-  \item \textbf{Architecture matters less than expected.} The LSTM, GRU
-    and Transformer achieve similar RMSE ($34$--$37$ cycles).  The
-    1D-CNN is slightly weaker, likely because local convolutions miss
-    long-range dependencies relevant at high RUL.
-  \item \textbf{Capacity ceiling.} With only 80 effective training
-    trajectories, larger models do not generalise better.  Moderate
-    regularisation (dropout 0.2, weight decay $10^{-4}$) is essential.
-  \item \textbf{Hybrid stacking.} Combining DL predictions with
-    rolling-window features in a stacking framework stabilises
-    predictions across RUL bands but does not significantly beat the
-    best single model on overall MAE.
+  \item \textbf{A single-layer LSTM is the best model, but its advantage is not statistically established.}
+    It reaches a validation MAE of $20.14\pm1.46$ (19.41 for the saved seed-42 model) against 25.03 for Random Forest,
+    and a test MAE of 16.10 against 18.95.  The paired bootstrap 95\% interval of the test difference is $[-0.14, 5.84]$ cycles, which includes 0.
+  \item \textbf{Architecture matters less than expected.}  On the validation-window MAE the LSTM, GRU and Transformer are close; on the
+    test set the GRU and CNN are worse than both tree models, and the Transformer is level with them.
+  \item \textbf{Small data limits capacity.}  With about 80 independent engines, extra recurrent layers hurt in the ablation,
+    early stopping is the regularizer that matters, and capping the training target does not help under uncapped evaluation.
+  \item \textbf{The hybrid improves a tree model, not the best deep model.}  Stacking lowers the Random Forest MAE from $25.08$ to $21.72$ on validation,
+    but it does not beat the LSTM alone, and it is no better than the plain average of the two.  Its lowest NASA score (4312) comes with
+    over-prediction of 84\% of the late test points.
 \end{enumerate}
 
 \subsection{Limitations}
 \begin{itemize}
-  \item FD001 is a single operating condition, single fault mode subset.
-    Generalisation to FD002--FD004 (multiple conditions and faults) is
-    not tested.
-  \item The effective training set is small (80 engines).  Data
-    augmentation or transfer learning may help.
-  \item All models still under-predict for engines with very high true
-    RUL ($>200$), as seen in the early-MAE analysis.
-  \item Transformer attention patterns are interpretable but we did not
-    exploit them for feature selection or domain insight.
+  \item FD001 has one operating condition and one fault mode; FD002--FD004 were not tested.
+  \item There are only 80 training engines, 20 validation engines and 100 test engines.  Confidence intervals are wide, validation scores are slightly optimistic
+    because early stopping and model selection used the validation engines, and the ablation standard deviations rest on three seeds.
+  \item No model removes the underprediction for engines with a true RUL above 200 cycles (mean error about $-110$ to $-125$ cycles on the 5 validation points that fall there).
+    The test set has no such engine, so the gap cannot be measured on it.
+  \item The 30-cycle window of a healthy engine contains little information about its remaining life; this is the most likely cause of the gap.
 \end{itemize}
 
 \subsection{Future Work}
 \begin{itemize}
-  \item Extend to multi-condition subsets (FD002--FD004) and
-    cross-subset transfer learning.
-  \item Explore attention-based feature selection and physics-informed
-    losses that encode monotonic degradation.
-  \item Investigate data augmentation via jittering or synthetic
-    trajectory generation.
-  \item Apply uncertainty quantification (e.g.\ MC Dropout or deep
-    ensembles) for maintenance-decision support.
+  \item Evaluate on FD002--FD004 and across subsets.
+  \item Use longer histories for healthy engines (for example variable-length or hierarchical windows), which is the most direct remedy for the high-RUL gap.
+  \item Add uncertainty estimates (deep ensembles or MC dropout), since a point prediction hides the risk of late predictions.
+  \item Try augmentation by jittering or synthetic trajectories to reduce the dependence on 80 engines.
 \end{itemize}
